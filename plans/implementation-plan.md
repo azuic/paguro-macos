@@ -37,7 +37,7 @@ Responsibilities:
 
 Initial adapters:
 
-- Claude adapter via local status line bridge
+- Claude adapter via local status line bridge that writes an atomic snapshot file in app support, watched by the app
 - OpenAI adapter via local proxy or wrapped API client
 
 ### Simulation and persistence

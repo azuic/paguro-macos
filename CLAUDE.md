@@ -24,6 +24,7 @@ Do not switch to Tauri or a broad cross-platform plan unless the user explicitly
 ## Telemetry Rules
 
 - Claude usage should be treated as locally bridgeable.
+- The current Claude bridge transport is a status-line-written snapshot file watched from app support.
 - OpenAI usage should be treated as available only through a controlled API path such as a wrapper or proxy.
 - Do not claim supported local Codex CLI usage telemetry unless it has been re-verified and documented.
 

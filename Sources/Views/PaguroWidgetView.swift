@@ -9,6 +9,7 @@ struct PaguroWidgetView: View {
         VStack(spacing: 14) {
             header(for: pet)
             providerPicker
+            providerStatusCard
             terrarium(for: pet)
             statGrid(for: pet)
             actions(for: pet)
@@ -47,6 +48,33 @@ struct PaguroWidgetView: View {
                     .foregroundStyle(PaguroTheme.ink.opacity(0.7))
             }
         }
+    }
+
+    private var providerStatusCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(store.selectedProviderActivityLabel.uppercased())
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .foregroundStyle(PaguroTheme.ink.opacity(0.66))
+
+                Spacer()
+
+                Circle()
+                    .fill(store.selectedProvider == .claude && store.telemetry.claude.isActive ? PaguroTheme.mint : PaguroTheme.rose)
+                    .frame(width: 8, height: 8)
+            }
+
+            Text(store.selectedProviderUsageSummary)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(PaguroTheme.ink)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(PaguroTheme.cream.opacity(0.9), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(PaguroTheme.ink, lineWidth: 1.5)
+        )
     }
 
     private var providerPicker: some View {
@@ -256,8 +284,12 @@ struct PaguroWidgetView: View {
     private func actions(for pet: PaguroPet) -> some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                actionButton(title: "Pulse", subtitle: "Demo usage +", tint: PaguroTheme.rose) {
-                    store.simulateUsagePulse()
+                actionButton(
+                    title: store.selectedProviderStatusTitle,
+                    subtitle: store.selectedProviderStatusSubtitle,
+                    tint: PaguroTheme.rose
+                ) {
+                    store.refreshSelectedProviderTelemetry()
                 }
 
                 actionButton(title: "Feed", subtitle: "-40 energy", tint: PaguroTheme.mint) {

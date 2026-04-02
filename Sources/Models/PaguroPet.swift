@@ -147,3 +147,46 @@ struct PaguroPet: Identifiable, Codable, Equatable {
         "\(growth)%"
     }
 }
+
+struct ProviderTelemetryState: Codable, Equatable {
+    var claude = ClaudeBridgeState()
+}
+
+struct ClaudeBridgeState: Codable, Equatable {
+    var sessions: [String: ClaudeSessionCursor] = [:]
+    var lastSnapshotAt: Date?
+    var lastUsageAppliedAt: Date?
+    var lastSessionID: String?
+    var lastSessionName: String?
+    var lastModelDisplayName: String?
+    var lastCurrentInputTokens: Int?
+    var lastCurrentOutputTokens: Int?
+    var lastTotalInputTokens: Int?
+    var lastTotalOutputTokens: Int?
+    var lastEnergyGain: Int?
+
+    var isActive: Bool {
+        guard let lastSnapshotAt else {
+            return false
+        }
+
+        return Date().timeIntervalSince(lastSnapshotAt) < 300
+    }
+
+    var statusLine: String {
+        if isActive {
+            return "Live"
+        }
+
+        if lastSnapshotAt != nil {
+            return "Idle"
+        }
+
+        return "Awaiting"
+    }
+}
+
+struct ClaudeSessionCursor: Codable, Equatable {
+    var totalInputTokens: Int
+    var totalOutputTokens: Int
+}

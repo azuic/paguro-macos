@@ -56,6 +56,7 @@ Ship a small menu bar pet that can:
 ### Claude
 
 - Use Claude Code session metadata made available to local integrations.
+- Use the local status line bridge script to write the latest Claude snapshot into Paguro's app-support bridge directory.
 - Prefer cumulative totals plus delta calculation per session.
 - Do not couple the UI directly to raw status line JSON.
 
