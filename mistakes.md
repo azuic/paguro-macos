@@ -59,3 +59,21 @@ Use this file to record concrete mistakes, bad assumptions, regressions, or plan
 - impact: setup fails intermittently and creates avoidable noise during repository bootstrap
 - prevention: run dependent setup commands sequentially; only parallelize independent reads or checks
 - status: active rule
+
+### Do not rely on `#Preview` blocks in this sandboxed build path
+
+- date: 2026-04-02
+- area: macOS build verification
+- mistake: leaving SwiftUI preview macros in source while verifying builds under the current sandboxed CLI environment
+- impact: `swift-plugin-server` can fail and block otherwise valid builds
+- prevention: remove preview macros or verify in Xcode GUI when preview support is needed
+- status: active rule
+
+### Do not overcomplicate the provider selector if the compiler starts crashing
+
+- date: 2026-04-02
+- area: SwiftUI implementation
+- mistake: using a `Picker` with a method-reference setter in a path that triggered a Swift compiler crash during IR generation
+- impact: a valid-looking view can fail the build with no useful source-level error
+- prevention: simplify the affected view first, especially generic SwiftUI controls and bindings, before assuming the whole file is wrong
+- status: active rule

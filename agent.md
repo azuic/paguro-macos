@@ -34,6 +34,7 @@ Default direction unless the user changes it:
 
 - native macOS shell using SwiftUI plus AppKit where needed
 - `MenuBarExtra` or `NSStatusItem` for the menu bar experience
+- XcodeGen-managed project scaffolding with a committed `project.yml`
 - local persistence for pets, inventory, progression, and usage events
 - adapter layer per provider
 

@@ -24,6 +24,7 @@ Preferred stack:
 
 - SwiftUI for app structure
 - AppKit for status item control when needed
+- XcodeGen for project generation, with the generated `.xcodeproj` committed for convenience
 
 ### Telemetry adapters
 

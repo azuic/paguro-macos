@@ -17,6 +17,7 @@ The preferred default stack is native macOS:
 
 - SwiftUI for the app shell
 - AppKit where menu bar control needs lower-level handling
+- XcodeGen for project configuration and regeneration
 
 Do not switch to Tauri or a broad cross-platform plan unless the user explicitly asks for that tradeoff.
 
@@ -35,6 +36,7 @@ When implementing:
 - prefer small vertical slices over broad scaffolding
 - optimize for a compact menu bar window first
 - keep menu bar icon state changes subtle
+- if project settings change, update `project.yml` and regenerate `Paguro.xcodeproj`
 
 ## Review Guidance
 
