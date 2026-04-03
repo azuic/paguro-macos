@@ -11,6 +11,7 @@
 		16D1914743CD8113794D7CE5 /* PaguroTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F73E35A9CB66B28770A09FF /* PaguroTheme.swift */; };
 		1D880C7C2F0CE8104E1973FD /* PaguroMenuBarLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 159B248540A126F644E4805C /* PaguroMenuBarLabelView.swift */; };
 		4E8AE3C2C8ACAACF8E21BEB3 /* PaguroPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86F3054811F80FDF5783AA3 /* PaguroPaths.swift */; };
+		5627CBA4C7C7F98A43453E69 /* ProviderTelemetryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915C0A99779071FDD950234A /* ProviderTelemetryState.swift */; };
 		6BB45FEA7F6A914DE6F6E821 /* PaguroStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68E40606646CCD2363028162 /* PaguroStore.swift */; };
 		C14FE841E440FEF1CD22380E /* PaguroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7585B76EA0E9809455D65B8 /* PaguroApp.swift */; };
 		C90A07DB06FC107E1B7A2B0F /* PaguroPet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D473B6D092CDE72B32FE4 /* PaguroPet.swift */; };
@@ -24,6 +25,7 @@
 		159B248540A126F644E4805C /* PaguroMenuBarLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaguroMenuBarLabelView.swift; sourceTree = "<group>"; };
 		4C47EE48C2BB4E52DB20D48A /* Paguro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Paguro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		68E40606646CCD2363028162 /* PaguroStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaguroStore.swift; sourceTree = "<group>"; };
+		915C0A99779071FDD950234A /* ProviderTelemetryState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTelemetryState.swift; sourceTree = "<group>"; };
 		A26D473B6D092CDE72B32FE4 /* PaguroPet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaguroPet.swift; sourceTree = "<group>"; };
 		D3EFEBB3FF777BF83471CA28 /* ClaudeStatusBridgeMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeStatusBridgeMonitor.swift; sourceTree = "<group>"; };
 		E7585B76EA0E9809455D65B8 /* PaguroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaguroApp.swift; sourceTree = "<group>"; };
@@ -44,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				A26D473B6D092CDE72B32FE4 /* PaguroPet.swift */,
+				915C0A99779071FDD950234A /* ProviderTelemetryState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -171,6 +174,7 @@
 				6BB45FEA7F6A914DE6F6E821 /* PaguroStore.swift in Sources */,
 				16D1914743CD8113794D7CE5 /* PaguroTheme.swift in Sources */,
 				D580635C900A74D30CEAA2A0 /* PaguroWidgetView.swift in Sources */,
+				5627CBA4C7C7F98A43453E69 /* ProviderTelemetryState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -107,6 +107,7 @@ Responsibilities:
 ### Milestone 3
 
 - shop, bag, shell swaps, food effects
+- status: implemented in the first compact widget pass, including egg hatching and multi-pet selection per provider
 
 ### Milestone 4
 

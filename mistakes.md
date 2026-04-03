@@ -77,3 +77,12 @@ Use this file to record concrete mistakes, bad assumptions, regressions, or plan
 - impact: a valid-looking view can fail the build with no useful source-level error
 - prevention: simplify the affected view first, especially generic SwiftUI controls and bindings, before assuming the whole file is wrong
 - status: active rule
+
+### Do not forget to regenerate the XcodeGen project after adding source files
+
+- date: 2026-04-02
+- area: build workflow
+- mistake: adding a new Swift file under `Sources/` and immediately rebuilding without regenerating `Paguro.xcodeproj`
+- impact: the compiler reports missing types even though the new file exists on disk
+- prevention: run `xcodegen generate` any time files are added or removed, then rebuild
+- status: active rule

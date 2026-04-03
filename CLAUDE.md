@@ -38,6 +38,7 @@ When implementing:
 - optimize for a compact menu bar window first
 - keep menu bar icon state changes subtle
 - if project settings change, update `project.yml` and regenerate `Paguro.xcodeproj`
+- if source files are added or removed, regenerate `Paguro.xcodeproj` before rebuilding
 
 ## Review Guidance
 

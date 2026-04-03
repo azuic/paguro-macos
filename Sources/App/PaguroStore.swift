@@ -3,6 +3,7 @@ import Foundation
 @MainActor
 final class PaguroStore: ObservableObject {
     @Published private(set) var pets: [PaguroPet]
+    @Published private(set) var selection: PetSelectionState
     @Published private(set) var telemetry: ProviderTelemetryState
     @Published var selectedProvider: ProviderKind {
         didSet {
@@ -32,74 +33,109 @@ final class PaguroStore: ObservableObject {
         }
 
         pets = initialSnapshot.pets
+        selection = initialSnapshot.selection
         selectedProvider = initialSnapshot.selectedProvider
         telemetry = initialSnapshot.telemetry
 
+        normalizeState()
         claudeBridgeMonitor.start()
     }
 
     var activePet: PaguroPet {
-        pets.first(where: { $0.provider == selectedProvider }) ?? pets[0]
-    }
-
-    func select(_ provider: ProviderKind) {
-        guard selectedProvider != provider else { return }
-        selectedProvider = provider
-    }
-
-    func refreshSelectedProviderTelemetry() {
-        switch selectedProvider {
-        case .claude:
-            claudeBridgeMonitor.refreshNow()
-        case .openAI:
-            simulateUsagePulse()
-        }
-    }
-
-    func simulateUsagePulse() {
-        let provider = selectedProvider
-
-        mutatePet(for: provider) { pet in
-            pet.energy += pet.provider == .claude ? 140 : 120
-            pet.growth = min(100, pet.growth + 5)
-            pet.fullness = max(0, pet.fullness - 3)
-            pet.lastUsagePulseAt = Date()
+        guard let pet = activePet(for: selectedProvider) else {
+            return pets[0]
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { [weak self] in
-            guard let self else { return }
+        return pet
+    }
 
-            self.mutatePet(for: provider) { pet in
-                pet.lastUsagePulseAt = nil
+    var activeShopListings: [ShopListing] {
+        let pet = activePet
+        var listings = FoodKind.allCases.map { food in
+            ShopListing(
+                kind: .food(food),
+                title: food.displayName,
+                detail: food.shortDetail,
+                badge: "\(food.price)",
+                isAffordable: pet.energy >= food.price,
+                isOwned: false
+            )
+        }
+
+        for shell in ShellVariant.allCases {
+            let owned = pet.inventory.ownedShells.contains(shell)
+            listings.append(
+                ShopListing(
+                    kind: .shell(shell),
+                    title: shell.displayName,
+                    detail: owned ? "Owned" : "New shell",
+                    badge: owned ? "Owned" : "\(shell.price)",
+                    isAffordable: owned || pet.energy >= shell.price,
+                    isOwned: owned
+                )
+            )
+        }
+
+        listings.append(
+            ShopListing(
+                kind: .egg,
+                title: "Salt Egg",
+                detail: "Hatch a new paguro",
+                badge: "\(eggPrice)",
+                isAffordable: pet.energy >= eggPrice,
+                isOwned: false
+            )
+        )
+
+        return listings
+    }
+
+    var activeBagListings: [BagListing] {
+        let pet = activePet
+        var listings: [BagListing] = []
+
+        for food in FoodKind.allCases {
+            let count = pet.inventory.count(for: food)
+            guard count > 0 else {
+                continue
             }
-        }
-    }
 
-    func feedActivePet() {
-        mutateActivePet { pet in
-            guard pet.energy >= 40 else { return }
-            pet.energy -= 40
-            pet.fullness = min(100, pet.fullness + 18)
-            pet.bodyHue = (pet.bodyHue + 12).truncatingRemainder(dividingBy: 360)
+            listings.append(
+                BagListing(
+                    kind: .food(food),
+                    title: food.displayName,
+                    detail: "Feed / \(food.pattern.displayName)",
+                    badge: "x\(count)",
+                    isEquipped: false
+                )
+            )
         }
-    }
 
-    func playWithActivePet() {
-        mutateActivePet { pet in
-            guard pet.energy >= 30 else { return }
-            pet.energy -= 30
-            pet.growth = min(100, pet.growth + 7)
-            pet.fullness = max(0, pet.fullness - 4)
+        for shell in pet.inventory.ownedShells {
+            listings.append(
+                BagListing(
+                    kind: .shell(shell),
+                    title: shell.displayName,
+                    detail: shell == pet.shell ? "Equipped" : "Equip shell",
+                    badge: shell == pet.shell ? "On" : "Use",
+                    isEquipped: shell == pet.shell
+                )
+            )
         }
-    }
 
-    func buyNextShell() {
-        mutateActivePet { pet in
-            let next = pet.shell.next
-            guard pet.energy >= next.price else { return }
-            pet.energy -= next.price
-            pet.shell = next
+        if pet.inventory.eggs > 0 {
+            listings.append(
+                BagListing(
+                    kind: .egg,
+                    title: "Salt Egg",
+                    detail: "Hatch a sibling pet",
+                    badge: "x\(pet.inventory.eggs)",
+                    isEquipped: false
+                )
+            )
         }
+
+        return listings
     }
 
     var selectedProviderStatusTitle: String {
@@ -144,22 +180,222 @@ final class PaguroStore: ObservableObject {
         }
     }
 
-    private func mutateActivePet(_ update: (inout PaguroPet) -> Void) {
-        mutatePet(for: selectedProvider, update)
+    func select(_ provider: ProviderKind) {
+        guard selectedProvider != provider else { return }
+        selectedProvider = provider
+        normalizeState()
     }
 
-    private func mutatePet(for provider: ProviderKind, _ update: (inout PaguroPet) -> Void) {
-        guard let index = pets.firstIndex(where: { $0.provider == provider }) else {
+    func providerPets(for provider: ProviderKind) -> [PaguroPet] {
+        pets.filter { $0.provider == provider }
+    }
+
+    func isSelectedPet(_ pet: PaguroPet) -> Bool {
+        selectedPetID(for: pet.provider) == pet.id
+    }
+
+    func selectPet(_ petID: UUID) {
+        guard let pet = pets.first(where: { $0.id == petID }) else {
+            return
+        }
+
+        selection.setPetID(petID, for: pet.provider)
+        if selectedProvider != pet.provider {
+            selectedProvider = pet.provider
+        }
+        save()
+    }
+
+    func refreshSelectedProviderTelemetry() {
+        switch selectedProvider {
+        case .claude:
+            claudeBridgeMonitor.refreshNow()
+        case .openAI:
+            simulateUsagePulse()
+        }
+    }
+
+    func playWithActivePet() {
+        mutateActivePet { pet in
+            guard pet.energy >= 30 else { return }
+            pet.energy -= 30
+            pet.growth += 7
+            pet.fullness -= 4
+        }
+    }
+
+    func buyShopItem(_ kind: ShopItemKind) {
+        mutateActivePet { pet in
+            switch kind {
+            case .food(let food):
+                guard pet.energy >= food.price else { return }
+                pet.energy -= food.price
+                pet.inventory.addFood(food)
+            case .shell(let shell):
+                guard !pet.inventory.ownedShells.contains(shell) else { return }
+                guard pet.energy >= shell.price else { return }
+                pet.energy -= shell.price
+                pet.inventory.addShell(shell)
+            case .egg:
+                guard pet.energy >= eggPrice else { return }
+                pet.energy -= eggPrice
+                pet.inventory.addEgg()
+            }
+        }
+    }
+
+    func useBagItem(_ kind: BagItemKind) {
+        switch kind {
+        case .food(let food):
+            mutateActivePet { pet in
+                guard pet.inventory.consumeFood(food) else { return }
+                pet.fullness += food.fullnessGain
+                pet.bodyHue += food.hueShift
+                pet.pattern = food.pattern
+                pet.growth += 2
+            }
+        case .shell(let shell):
+            mutateActivePet { pet in
+                guard pet.inventory.ownedShells.contains(shell) else { return }
+                pet.shell = shell
+            }
+        case .egg:
+            hatchEggForActiveProvider()
+        }
+    }
+
+    func simulateUsagePulse() {
+        let provider = selectedProvider
+
+        mutateSelectedPet(for: provider) { pet in
+            pet.energy += pet.provider == .claude ? 140 : 120
+            pet.growth += 5
+            pet.fullness -= 3
+            pet.lastUsagePulseAt = Date()
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { [weak self] in
+            Task { @MainActor [weak self] in
+                self?.clearUsagePulse(for: provider)
+            }
+        }
+    }
+
+    private var eggPrice: Int { 240 }
+
+    private func selectedPetID(for provider: ProviderKind) -> UUID? {
+        selection.petID(for: provider)
+    }
+
+    private func activePet(for provider: ProviderKind) -> PaguroPet? {
+        if let petID = selectedPetID(for: provider) {
+            return pets.first(where: { $0.provider == provider && $0.id == petID })
+        }
+
+        return pets.first(where: { $0.provider == provider })
+    }
+
+    private func selectedPetIndex(for provider: ProviderKind) -> Int? {
+        if let petID = selectedPetID(for: provider),
+           let index = pets.firstIndex(where: { $0.provider == provider && $0.id == petID }) {
+            return index
+        }
+
+        return pets.firstIndex(where: { $0.provider == provider })
+    }
+
+    private func mutateActivePet(_ update: (inout PaguroPet) -> Void) {
+        mutateSelectedPet(for: selectedProvider, update)
+    }
+
+    private func mutateSelectedPet(for provider: ProviderKind, _ update: (inout PaguroPet) -> Void) {
+        guard let index = selectedPetIndex(for: provider) else {
             return
         }
 
         update(&pets[index])
+        pets[index].syncDerivedState()
+        normalizeState()
         save()
+    }
+
+    private func clearUsagePulse(for provider: ProviderKind) {
+        guard let index = selectedPetIndex(for: provider) else {
+            return
+        }
+
+        pets[index].lastUsagePulseAt = nil
+        save()
+    }
+
+    private func hatchEggForActiveProvider() {
+        guard let index = selectedPetIndex(for: selectedProvider) else {
+            return
+        }
+
+        guard pets[index].inventory.consumeEgg() else {
+            return
+        }
+
+        let newPet = makeHatchedPet(for: selectedProvider)
+        pets[index].syncDerivedState()
+        pets.append(newPet)
+        selection.setPetID(newPet.id, for: selectedProvider)
+        normalizeState()
+        save()
+    }
+
+    private func makeHatchedPet(for provider: ProviderKind) -> PaguroPet {
+        let names: [String]
+
+        switch provider {
+        case .claude:
+            names = ["Miso", "Tango", "Pico", "Dune", "Nori", "Kiki"]
+        case .openAI:
+            names = ["Rook", "Byte", "Sumi", "Pebble", "Mochi", "Aster"]
+        }
+
+        let shell = ShellVariant.allCases.randomElement() ?? .sand
+        let hue = Double(Int.random(in: 0...359))
+        let name = names.randomElement() ?? "Pebble"
+
+        return PaguroPet(
+            provider: provider,
+            name: name,
+            energy: 180,
+            fullness: 70,
+            growth: 10,
+            shell: shell,
+            bodyHue: hue,
+            pattern: PetPattern.allCases.randomElement() ?? .plain,
+            inventory: .starter(currentShell: shell)
+        )
+    }
+
+    private func normalizeState() {
+        for index in pets.indices {
+            pets[index].syncDerivedState()
+        }
+
+        for provider in ProviderKind.allCases {
+            let currentID = selection.petID(for: provider)
+            let hasCurrent = pets.contains(where: { $0.provider == provider && $0.id == currentID })
+            if !hasCurrent {
+                let fallback = pets.first(where: { $0.provider == provider })?.id
+                selection.setPetID(fallback, for: provider)
+            }
+        }
+
+        if activePet(for: selectedProvider) == nil,
+           let fallbackProvider = ProviderKind.allCases.first(where: { activePet(for: $0) != nil }) {
+            selectedProvider = fallbackProvider
+        }
     }
 
     private func save() {
         let snapshot = PaguroSnapshot(
             selectedProvider: selectedProvider,
+            selection: selection,
             pets: pets,
             telemetry: telemetry
         )
@@ -199,25 +435,20 @@ final class PaguroStore: ObservableObject {
     }
 
     private func applyClaudeEnergyGain(_ energyGain: Int, modifiedAt: Date) {
-        guard let index = pets.firstIndex(where: { $0.provider == .claude }) else {
+        guard let index = selectedPetIndex(for: .claude) else {
             return
         }
 
         pets[index].energy += energyGain
-        pets[index].growth = min(100, pets[index].growth + growthGain(for: energyGain))
-        pets[index].fullness = max(0, pets[index].fullness - fullnessDrain(for: energyGain))
+        pets[index].growth += growthGain(for: energyGain)
+        pets[index].fullness -= fullnessDrain(for: energyGain)
         pets[index].lastUsagePulseAt = modifiedAt
+        pets[index].syncDerivedState()
         telemetry.claude.lastUsageAppliedAt = modifiedAt
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { [weak self] in
             Task { @MainActor [weak self] in
-                guard let self else { return }
-                guard let claudeIndex = self.pets.firstIndex(where: { $0.provider == .claude }) else {
-                    return
-                }
-
-                self.pets[claudeIndex].lastUsagePulseAt = nil
-                self.save()
+                self?.clearUsagePulse(for: .claude)
             }
         }
     }
@@ -261,11 +492,45 @@ final class PaguroStore: ObservableObject {
 
 private struct PaguroSnapshot: Codable {
     var selectedProvider: ProviderKind
+    var selection: PetSelectionState
     var pets: [PaguroPet]
     var telemetry: ProviderTelemetryState
 
+    private enum CodingKeys: String, CodingKey {
+        case selectedProvider
+        case selection
+        case pets
+        case telemetry
+    }
+
+    init(
+        selectedProvider: ProviderKind,
+        selection: PetSelectionState,
+        pets: [PaguroPet],
+        telemetry: ProviderTelemetryState
+    ) {
+        self.selectedProvider = selectedProvider
+        self.selection = selection
+        self.pets = pets
+        self.telemetry = telemetry
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let pets = try container.decode([PaguroPet].self, forKey: .pets)
+
+        self.pets = pets
+        selectedProvider = try container.decodeIfPresent(ProviderKind.self, forKey: .selectedProvider) ?? .claude
+        selection = try container.decodeIfPresent(PetSelectionState.self, forKey: .selection) ?? PetSelectionState(
+            claudePetID: pets.first(where: { $0.provider == .claude })?.id,
+            openAIPetID: pets.first(where: { $0.provider == .openAI })?.id
+        )
+        telemetry = try container.decodeIfPresent(ProviderTelemetryState.self, forKey: .telemetry) ?? ProviderTelemetryState()
+    }
+
     static let seed = PaguroSnapshot(
         selectedProvider: .claude,
+        selection: PetSelectionState(),
         pets: [
             PaguroPet(
                 provider: .claude,
@@ -273,9 +538,9 @@ private struct PaguroSnapshot: Codable {
                 energy: 1240,
                 fullness: 62,
                 growth: 41,
-                stage: .adolescent,
                 shell: .sand,
-                bodyHue: 8
+                bodyHue: 8,
+                pattern: .plain
             ),
             PaguroPet(
                 provider: .openAI,
@@ -283,9 +548,9 @@ private struct PaguroSnapshot: Codable {
                 energy: 860,
                 fullness: 54,
                 growth: 29,
-                stage: .hatchling,
                 shell: .lagoon,
-                bodyHue: 18
+                bodyHue: 18,
+                pattern: .speckles
             ),
         ],
         telemetry: ProviderTelemetryState()
