@@ -8,7 +8,7 @@ struct PaguroApp: App {
         MenuBarExtra {
             PaguroWidgetView()
                 .environmentObject(store)
-                .frame(width: 348)
+                .frame(width: 532)
         } label: {
             PaguroMenuBarLabelView(pet: store.activePet)
         }

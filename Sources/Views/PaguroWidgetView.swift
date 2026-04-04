@@ -4,117 +4,75 @@ struct PaguroWidgetView: View {
     @EnvironmentObject private var store: PaguroStore
     @State private var panelMode: InventoryPanelMode = .shop
 
+    private let itemColumns = [
+        GridItem(.flexible(), spacing: 6),
+        GridItem(.flexible(), spacing: 6),
+        GridItem(.flexible(), spacing: 6),
+    ]
+
     var body: some View {
         let pet = store.activePet
 
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 12) {
-                header(for: pet)
-                providerPicker
-                petRoster
-                providerStatusCard
-                terrarium(for: pet)
-                statGrid(for: pet)
-                quickActions(for: pet)
-                panelPicker
-                panelContent(for: pet)
+            VStack(spacing: 10) {
+                titleBanner
+                providerStrip
+                petDock
+                osWindow(for: pet)
             }
-            .padding(14)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
         }
         .background(background)
     }
 
-    private func header(for pet: PaguroPet) -> some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Paguro")
-                    .font(.system(size: 21, weight: .black, design: .rounded))
-                    .foregroundStyle(PaguroTheme.rose)
-
-                Text("\(pet.name) / \(pet.stage.displayName) / \(pet.pattern.displayName)")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink)
+    private var titleBanner: some View {
+        VStack(spacing: 2) {
+            HStack(spacing: 6) {
+                Text("PAGURO")
+                Text("✦")
+                    .foregroundStyle(PaguroTheme.white)
+                    .shadow(color: PaguroTheme.rose, radius: 0, x: 2, y: 2)
+                Text("OS")
             }
+            .font(PaguroTheme.displayFont(size: 20))
+            .foregroundStyle(PaguroTheme.rose)
+            .shadow(color: PaguroTheme.darkRose, radius: 0, x: 2, y: 2)
+            .textCase(.uppercase)
 
-            Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 6) {
-                Text(pet.provider.displayName)
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(PaguroTheme.lilac, in: Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(PaguroTheme.ink, lineWidth: 1.5)
-                    )
-
-                Text(pet.mood.displayName)
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.7))
-            }
+            Text("desktop pet edition")
+                .font(PaguroTheme.displayFont(size: 9))
+                .foregroundStyle(PaguroTheme.rose)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 6)
+                .background(PaguroTheme.cream)
+                .overlay(
+                    Rectangle()
+                        .stroke(PaguroTheme.rose, lineWidth: 2)
+                )
         }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 6)
     }
 
-    private var providerStatusCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(store.selectedProviderStatusTitle.uppercased())
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.66))
-
-                Spacer()
-
-                Circle()
-                    .fill(store.selectedProvider == .claude && store.telemetry.claude.isActive ? PaguroTheme.mint : PaguroTheme.rose)
-                    .frame(width: 8, height: 8)
-            }
-
-            Text(store.selectedProviderStatusSubtitle)
-                .font(.system(size: 11, weight: .bold, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink)
-
-            Text(store.selectedProviderUsageSummary)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink.opacity(0.72))
-
-            if store.selectedProvider == .claude {
-                Text(store.selectedProviderActivityLabel)
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.6))
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(PaguroTheme.cream.opacity(0.9), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.5)
-        )
-    }
-
-    private var providerPicker: some View {
-        HStack(spacing: 8) {
+    private var providerStrip: some View {
+        HStack(spacing: 6) {
             ForEach(ProviderKind.allCases) { provider in
                 Button {
                     store.select(provider)
                 } label: {
-                    Text(provider.displayName)
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundStyle(PaguroTheme.ink)
+                    Text(provider.displayName.uppercased())
+                        .font(PaguroTheme.displayFont(size: 9))
+                        .foregroundStyle(store.selectedProvider == provider ? PaguroTheme.white : PaguroTheme.outline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(
-                                    store.selectedProvider == provider
-                                        ? PaguroTheme.lilac
-                                        : Color.white.opacity(0.72)
-                                )
+                            Rectangle()
+                                .fill(store.selectedProvider == provider ? PaguroTheme.rose : PaguroTheme.white)
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(PaguroTheme.ink, lineWidth: 1.5)
+                            Rectangle()
+                                .stroke(PaguroTheme.outline, lineWidth: 2)
                         )
                 }
                 .buttonStyle(.plain)
@@ -122,561 +80,514 @@ struct PaguroWidgetView: View {
         }
     }
 
-    private var petRoster: some View {
+    private var petDock: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 ForEach(store.providerPets(for: store.selectedProvider)) { pet in
-                    petChip(for: pet)
+                    Button {
+                        store.selectPet(pet.id)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 5) {
+                                Rectangle()
+                                    .fill(pet.mood == .charged ? PaguroTheme.gold : PaguroTheme.rose)
+                                    .frame(width: 8, height: 8)
+
+                                Text(pet.name)
+                                    .font(PaguroTheme.displayFont(size: 8))
+                                    .lineLimit(1)
+                            }
+
+                            Text("\(pet.stage.displayName) / \(pet.weightText)")
+                                .font(PaguroTheme.uiFont(size: 14, weight: .bold))
+                                .lineLimit(1)
+                        }
+                        .foregroundStyle(PaguroTheme.outline)
+                        .frame(width: 144, alignment: .leading)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 7)
+                        .background(store.isSelectedPet(pet) ? PaguroTheme.cream : PaguroTheme.white)
+                        .overlay(
+                            Rectangle()
+                                .stroke(PaguroTheme.outline, lineWidth: store.isSelectedPet(pet) ? 2.5 : 2)
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.vertical, 1)
         }
     }
 
-    private func petChip(for pet: PaguroPet) -> some View {
-        Button {
-            store.selectPet(pet.id)
-        } label: {
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(pet.mood == .charged ? PaguroTheme.gold : PaguroTheme.mint)
-                        .frame(width: 8, height: 8)
+    private func osWindow(for pet: PaguroPet) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            statusPanel(for: pet)
+                .frame(width: 136)
 
-                    Text(pet.name)
-                        .font(.system(size: 11, weight: .heavy, design: .rounded))
-                        .foregroundStyle(PaguroTheme.ink)
-                        .lineLimit(1)
+            terrariumPanel(for: pet)
+                .frame(maxWidth: .infinity)
+
+            marketPanel(for: pet)
+                .frame(width: 154)
+        }
+        .padding(10)
+        .background(PaguroTheme.white)
+        .overlay(
+            Rectangle()
+                .stroke(PaguroTheme.outline, lineWidth: 3)
+        )
+        .overlay(alignment: .topLeading) { cornerDecoration }
+        .overlay(alignment: .topTrailing) { cornerDecoration }
+        .overlay(alignment: .bottomLeading) { cornerDecoration }
+        .overlay(alignment: .bottomTrailing) { cornerDecoration }
+        .shadow(color: PaguroTheme.lilac, radius: 0, x: 4, y: 4)
+    }
+
+    private func statusPanel(for pet: PaguroPet) -> some View {
+        pixelPanel(
+            title: "STATUS",
+            headerFill: PaguroTheme.rose,
+            headerForeground: PaguroTheme.white
+        ) {
+            VStack(spacing: 10) {
+                statRow(label: "Name", value: pet.name)
+                statRow(label: "Stage", value: pet.stage.displayName)
+                statRow(label: "Weight", value: pet.weightText)
+
+                pixelProgress(title: "Fullness", value: pet.fullness, fill: PaguroTheme.leaf)
+                pixelProgress(title: "Growth", value: pet.growth, fill: PaguroTheme.lilac)
+
+                VStack(spacing: 8) {
+                    Text("+ \(pet.energy.formatted())")
+                        .font(PaguroTheme.displayFont(size: 11))
+                        .foregroundStyle(PaguroTheme.gold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 10)
+                        .frame(maxWidth: .infinity)
+                        .background(PaguroTheme.outline)
+                        .overlay(
+                            Rectangle()
+                                .stroke(PaguroTheme.outline, lineWidth: 2)
+                        )
+
+                    Button {
+                        store.refreshSelectedProviderTelemetry()
+                    } label: {
+                        VStack(spacing: 3) {
+                            Text(store.selectedProvider == .claude ? "SYNC CLAUDE" : "PULSE DEMO")
+                                .font(PaguroTheme.displayFont(size: 9))
+                            Text(store.selectedProviderStatusSubtitle.lowercased())
+                                .font(PaguroTheme.uiFont(size: 12, weight: .bold))
+                        }
+                        .foregroundStyle(PaguroTheme.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(PaguroTheme.rose)
+                        .overlay(
+                            Rectangle()
+                                .stroke(PaguroTheme.outline, lineWidth: 2)
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    VStack(spacing: 3) {
+                        Text(store.selectedProviderActivityLabel.uppercased())
+                            .font(PaguroTheme.displayFont(size: 7))
+                        Text(store.selectedProviderUsageSummary)
+                            .font(PaguroTheme.uiFont(size: 12, weight: .bold))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(3)
+                    }
+                    .foregroundStyle(PaguroTheme.outline)
+                }
+                .padding(8)
+                .frame(maxWidth: .infinity)
+                .background(PaguroTheme.lilac)
+                .overlay(
+                    Rectangle()
+                        .stroke(PaguroTheme.outline, lineWidth: 2)
+                )
+            }
+        }
+    }
+
+    private func terrariumPanel(for pet: PaguroPet) -> some View {
+        VStack(spacing: 8) {
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .fill(PaguroTheme.water)
+                    .overlay(alignment: .bottom) {
+                        screenFloor
+                    }
+                    .overlay(
+                        Rectangle()
+                            .stroke(PaguroTheme.outline, lineWidth: 3)
+                    )
+                    .overlay(alignment: .top) {
+                        Rectangle()
+                            .fill(PaguroTheme.white.opacity(0.25))
+                            .frame(height: 8)
+                    }
+
+                PixelPetSpriteView(pet: pet)
+                    .frame(width: 108, height: 108)
+                    .padding(.bottom, 24)
+                    .scaleEffect(pet.mood == .charged ? 1.04 : 1)
+                    .animation(.easeInOut(duration: 0.18), value: pet.mood)
+                    .animation(.easeInOut(duration: 0.18), value: pet.pattern)
+                    .animation(.easeInOut(duration: 0.18), value: pet.shell)
+            }
+            .frame(height: 220)
+
+            HStack(spacing: 8) {
+                pillButton(title: store.selectedProvider == .claude ? "sync" : "pulse") {
+                    store.refreshSelectedProviderTelemetry()
                 }
 
-                Text("\(pet.weightText) / \(pet.shell.displayName)")
-                    .font(.system(size: 9, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.7))
-                    .lineLimit(1)
+                pillButton(title: "play", isEnabled: pet.energy >= 30) {
+                    store.playWithActivePet()
+                }
             }
-            .frame(width: 122, alignment: .leading)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 9)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(store.isSelectedPet(pet) ? PaguroTheme.lilac : Color.white.opacity(0.82))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(PaguroTheme.ink, lineWidth: store.isSelectedPet(pet) ? 2 : 1.5)
-            )
+        }
+        .padding(8)
+        .background(PaguroTheme.white)
+        .overlay(
+            Rectangle()
+                .stroke(PaguroTheme.outline, lineWidth: 3)
+        )
+    }
+
+    private var screenFloor: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .top) {
+                Rectangle()
+                    .fill(PaguroTheme.sand)
+
+                Canvas { context, size in
+                    let dotSpacing: CGFloat = 12
+                    for x in stride(from: 4 as CGFloat, through: size.width, by: dotSpacing) {
+                        for y in stride(from: 5 as CGFloat, through: size.height, by: dotSpacing) {
+                            context.fill(
+                                Path(CGRect(x: x, y: y, width: 2, height: 2)),
+                                with: .color(PaguroTheme.outline.opacity(0.55))
+                            )
+                        }
+                    }
+                }
+
+                Rectangle()
+                    .fill(PaguroTheme.outline)
+                    .frame(height: 2)
+            }
+        }
+        .frame(height: 68)
+    }
+
+    private func marketPanel(for pet: PaguroPet) -> some View {
+        pixelPanel(
+            title: panelMode == .shop ? "MARKET" : "BAG",
+            headerFill: PaguroTheme.lilac,
+            headerForeground: PaguroTheme.outline
+        ) {
+            VStack(spacing: 8) {
+                HStack(spacing: 6) {
+                    tabButton(for: .shop)
+                    tabButton(for: .bag)
+                }
+
+                LazyVGrid(columns: itemColumns, spacing: 6) {
+                    if panelMode == .shop {
+                        ForEach(store.activeShopListings) { listing in
+                            shopSlot(for: listing)
+                        }
+
+                        ForEach(0..<max(0, 9 - store.activeShopListings.count), id: \.self) { _ in
+                            emptySlot
+                        }
+                    } else {
+                        let bagListings = store.activeBagListings
+
+                        ForEach(bagListings) { listing in
+                            bagSlot(for: listing)
+                        }
+
+                        ForEach(0..<max(0, 9 - bagListings.count), id: \.self) { _ in
+                            emptySlot
+                        }
+                    }
+                }
+
+                Text(panelMode == .shop ? "food, shells, eggs" : "feed, equip, hatch")
+                    .font(PaguroTheme.uiFont(size: 13, weight: .bold))
+                    .foregroundStyle(PaguroTheme.outline.opacity(0.78))
+
+                HStack(spacing: 4) {
+                    inventoryTicker(label: "Shells", value: "\(pet.inventory.ownedShells.count)")
+                    inventoryTicker(label: "Food", value: "\(foodCount(for: pet))")
+                    inventoryTicker(label: "Eggs", value: "\(pet.inventory.eggs)")
+                }
+            }
+        }
+    }
+
+    private func tabButton(for mode: InventoryPanelMode) -> some View {
+        Button {
+            panelMode = mode
+        } label: {
+            Text(mode.displayName)
+                .font(PaguroTheme.displayFont(size: 8))
+                .foregroundStyle(PaguroTheme.outline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(panelMode == mode ? PaguroTheme.white : PaguroTheme.gray)
+                .overlay(
+                    Rectangle()
+                        .stroke(PaguroTheme.outline, lineWidth: 2)
+                )
         }
         .buttonStyle(.plain)
     }
 
-    private func terrarium(for pet: PaguroPet) -> some View {
-        ZStack(alignment: .bottom) {
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [PaguroTheme.lagoon, PaguroTheme.cream],
-                        startPoint: .top,
-                        endPoint: .bottom
+    private func shopSlot(for listing: ShopListing) -> some View {
+        let disabled = listing.isOwned || !listing.isAffordable
+
+        return itemSlot(
+            icon: iconKind(for: listing.kind),
+            badge: listing.badge,
+            disabled: disabled,
+            fill: disabled ? PaguroTheme.cream : PaguroTheme.white,
+            action: { store.buyShopItem(listing.kind) }
+        )
+        .help("\(listing.title) · \(listing.detail)")
+    }
+
+    private func bagSlot(for listing: BagListing) -> some View {
+        let disabled = listing.isEquipped
+
+        return itemSlot(
+            icon: iconKind(for: listing.kind),
+            badge: listing.badge,
+            disabled: disabled,
+            fill: disabled ? PaguroTheme.gray : PaguroTheme.white,
+            action: { store.useBagItem(listing.kind) }
+        )
+        .help("\(listing.title) · \(listing.detail)")
+    }
+
+    private func itemSlot(
+        icon: PixelIconKind,
+        badge: String,
+        disabled: Bool,
+        fill: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            ZStack(alignment: .bottomTrailing) {
+                Rectangle()
+                    .fill(fill)
+                    .overlay(
+                        Rectangle()
+                            .stroke(disabled ? PaguroTheme.gray : PaguroTheme.lilac, style: StrokeStyle(lineWidth: 2, dash: [4, 3]))
                     )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 26, style: .continuous)
-                        .stroke(PaguroTheme.ink, lineWidth: 2)
-                )
 
-            VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    bubble(size: 10, opacity: 0.24)
-                    bubble(size: 6, opacity: 0.16)
-                    Spacer()
-                    bubble(size: 7, opacity: 0.18)
-                    bubble(size: 12, opacity: 0.22)
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                PixelInventoryIconView(kind: icon)
+                    .padding(10)
 
-                Spacer()
+                Text(badge.uppercased())
+                    .font(PaguroTheme.displayFont(size: 7))
+                    .foregroundStyle(PaguroTheme.gold)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 3)
+                    .background(PaguroTheme.outline)
+                    .overlay(
+                        Rectangle()
+                            .stroke(PaguroTheme.white, lineWidth: 1.5)
+                    )
+                    .offset(x: 3, y: 3)
             }
-
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(PaguroTheme.sand)
-                .frame(height: 74)
-                .overlay(alignment: .top) {
-                    Rectangle()
-                        .fill(PaguroTheme.ink.opacity(0.3))
-                        .frame(height: 1)
-                }
-
-            paguroSprite(for: pet)
-                .offset(y: -10)
-                .animation(.spring(response: 0.35, dampingFraction: 0.78), value: pet.mood)
-                .animation(.spring(response: 0.28, dampingFraction: 0.7), value: pet.shell)
-                .animation(.spring(response: 0.28, dampingFraction: 0.78), value: pet.pattern)
+            .aspectRatio(1, contentMode: .fit)
         }
-        .frame(height: 218)
+        .buttonStyle(.plain)
+        .disabled(disabled)
+        .opacity(disabled ? 0.72 : 1)
     }
 
-    private func paguroSprite(for pet: PaguroPet) -> some View {
-        ZStack {
-            Ellipse()
-                .fill(PaguroTheme.ink.opacity(0.12))
-                .frame(width: 112, height: 18)
-                .offset(y: 42)
-
-            ZStack(alignment: .bottomLeading) {
-                shell(for: pet)
-                    .offset(x: 18, y: -14)
-
-                crabBody(for: pet)
-                    .offset(x: -14, y: 12)
-            }
-            .scaleEffect(spriteScale(for: pet))
-        }
-    }
-
-    private func shell(for pet: PaguroPet) -> some View {
-        ZStack {
-            Circle()
-                .fill(PaguroTheme.peach)
-                .frame(width: 86, height: 86)
-                .overlay(
-                    Circle()
-                        .stroke(PaguroTheme.ink, lineWidth: 3)
-                )
-                .hueRotation(.degrees(pet.shell.hueRotation))
-
-            Circle()
-                .stroke(PaguroTheme.ink.opacity(0.35), lineWidth: 3)
-                .frame(width: 54, height: 54)
-                .offset(x: -5, y: 4)
-                .hueRotation(.degrees(pet.shell.hueRotation))
-
-            Circle()
-                .stroke(PaguroTheme.ink.opacity(0.2), lineWidth: 3)
-                .frame(width: 25, height: 25)
-                .offset(x: -9, y: 7)
-                .hueRotation(.degrees(pet.shell.hueRotation))
-        }
-    }
-
-    private func crabBody(for pet: PaguroPet) -> some View {
-        let bodyTint = Color(hue: pet.bodyHue / 360, saturation: 0.58, brightness: 0.95)
-
-        return ZStack(alignment: .top) {
-            HStack(spacing: -8) {
-                claw(tint: bodyTint, mirrored: true)
-                    .rotationEffect(.degrees(-10))
-                    .offset(y: 10)
-
-                claw(tint: bodyTint, mirrored: false)
-                    .rotationEffect(.degrees(8))
-                    .offset(y: 8)
-            }
-            .offset(y: 12)
-
-            VStack(spacing: 0) {
-                HStack(spacing: 16) {
-                    eye()
-                    eye()
-                }
-
-                ZStack {
-                    Capsule()
-                        .fill(bodyTint)
-                        .frame(width: 62, height: 42)
-
-                    bodyPattern(for: pet, tint: bodyTint)
-                        .frame(width: 62, height: 42)
-
-                    Capsule()
-                        .stroke(PaguroTheme.ink, lineWidth: 3)
-                        .frame(width: 62, height: 42)
-                }
-
-                HStack(spacing: 10) {
-                    leg()
-                    leg()
-                    leg()
-                }
-                .offset(y: -4)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func bodyPattern(for pet: PaguroPet, tint: Color) -> some View {
-        switch pet.pattern {
-        case .plain:
-            EmptyView()
-        case .speckles:
-            ZStack {
-                Circle()
-                    .fill(tint.opacity(0.24))
-                    .frame(width: 8, height: 8)
-                    .offset(x: -12, y: -6)
-
-                Circle()
-                    .fill(tint.opacity(0.22))
-                    .frame(width: 6, height: 6)
-                    .offset(x: 3, y: 2)
-
-                Circle()
-                    .fill(tint.opacity(0.28))
-                    .frame(width: 7, height: 7)
-                    .offset(x: 14, y: -4)
-
-                Circle()
-                    .fill(tint.opacity(0.2))
-                    .frame(width: 5, height: 5)
-                    .offset(x: -1, y: -10)
-            }
-        case .stripes:
-            HStack(spacing: 8) {
-                Capsule()
-                    .fill(tint.opacity(0.22))
-                    .frame(width: 6, height: 30)
-
-                Capsule()
-                    .fill(tint.opacity(0.24))
-                    .frame(width: 6, height: 30)
-
-                Capsule()
-                    .fill(tint.opacity(0.2))
-                    .frame(width: 6, height: 30)
-            }
-        }
-    }
-
-    private func claw(tint: Color, mirrored: Bool) -> some View {
-        Capsule()
-            .fill(tint)
-            .frame(width: 26, height: 16)
+    private var emptySlot: some View {
+        Rectangle()
+            .fill(PaguroTheme.gray)
             .overlay(
-                Capsule()
-                    .stroke(PaguroTheme.ink, lineWidth: 3)
+                Rectangle()
+                    .stroke(PaguroTheme.gray, lineWidth: 2)
             )
-            .scaleEffect(x: mirrored ? -1 : 1, y: 1)
+            .aspectRatio(1, contentMode: .fit)
     }
 
-    private func leg() -> some View {
-        Capsule()
-            .fill(PaguroTheme.ink)
-            .frame(width: 4, height: 18)
-    }
-
-    private func eye() -> some View {
+    private func inventoryTicker(label: String, value: String) -> some View {
         VStack(spacing: 2) {
-            Capsule()
-                .fill(PaguroTheme.ink)
-                .frame(width: 3, height: 16)
-
-            Circle()
-                .fill(PaguroTheme.cream)
-                .frame(width: 12, height: 12)
-                .overlay(
-                    Circle()
-                        .fill(PaguroTheme.ink)
-                        .frame(width: 4, height: 4)
-                )
-        }
-    }
-
-    private func statGrid(for pet: PaguroPet) -> some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                metricCard(title: "Energy", value: "\(pet.energy)", tint: PaguroTheme.gold, foreground: PaguroTheme.ink)
-                metricCard(title: "Weight", value: pet.weightText, tint: PaguroTheme.lilac, foreground: PaguroTheme.ink)
-                metricCard(title: "Pattern", value: pet.pattern.displayName, tint: PaguroTheme.peach, foreground: PaguroTheme.ink)
-            }
-
-            progressCard(title: "Fullness", value: pet.fullness, tint: PaguroTheme.mint)
-
-            HStack(spacing: 10) {
-                progressCard(title: "Growth", value: pet.growth, tint: PaguroTheme.lilac)
-                inventoryCard(for: pet)
-            }
-        }
-    }
-
-    private func inventoryCard(for pet: PaguroPet) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("INVENTORY")
-                .font(.system(size: 9, weight: .bold, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink.opacity(0.65))
-
-            HStack(spacing: 6) {
-                inventoryTag(label: "Shell", value: "\(pet.inventory.ownedShells.count)")
-                inventoryTag(label: "Food", value: "\(foodCount(for: pet))")
-                inventoryTag(label: "Egg", value: "\(pet.inventory.eggs)")
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(PaguroTheme.cream.opacity(0.92), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.5)
-        )
-    }
-
-    private func inventoryTag(label: String, value: String) -> some View {
-        VStack(spacing: 4) {
             Text(label)
-                .font(.system(size: 8, weight: .bold, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink.opacity(0.55))
+                .font(PaguroTheme.displayFont(size: 6))
             Text(value)
-                .font(.system(size: 12, weight: .heavy, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink)
+                .font(PaguroTheme.uiFont(size: 14, weight: .bold))
         }
+        .foregroundStyle(PaguroTheme.outline)
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 6)
-        .background(Color.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .padding(.vertical, 4)
+        .background(PaguroTheme.white)
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.2)
+            Rectangle()
+                .stroke(PaguroTheme.outline, lineWidth: 2)
         )
     }
 
-    private func quickActions(for pet: PaguroPet) -> some View {
-        HStack(spacing: 8) {
-            actionButton(
-                title: store.selectedProvider == .claude ? "Sync Claude" : "Pulse Demo",
-                subtitle: store.selectedProviderStatusSubtitle,
-                tint: PaguroTheme.rose
-            ) {
-                store.refreshSelectedProviderTelemetry()
-            }
+    private func pixelPanel<Content: View>(
+        title: String,
+        headerFill: Color,
+        headerForeground: Color,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        ZStack {
+            PaguroTheme.cream
 
-            actionButton(
-                title: "Play",
-                subtitle: pet.energy >= 30 ? "-30 energy / +growth" : "Need 30 energy",
-                tint: PaguroTheme.lilac,
-                isEnabled: pet.energy >= 30
-            ) {
-                store.playWithActivePet()
+            VStack(spacing: 10) {
+                Text(title)
+                    .font(PaguroTheme.displayFont(size: 9))
+                    .foregroundStyle(headerForeground)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(headerFill)
+                    .overlay(
+                        Rectangle()
+                            .stroke(PaguroTheme.outline, lineWidth: 2)
+                    )
+                    .offset(y: -8)
+
+                content()
+                    .padding(.top, -4)
             }
+            .padding(8)
+        }
+        .overlay(
+            Rectangle()
+                .stroke(PaguroTheme.outline, lineWidth: 3)
+        )
+        .overlay(alignment: .topLeading) { cornerDecoration }
+        .overlay(alignment: .topTrailing) { cornerDecoration }
+        .overlay(alignment: .bottomLeading) { cornerDecoration }
+        .overlay(alignment: .bottomTrailing) { cornerDecoration }
+    }
+
+    private func statRow(label: String, value: String) -> some View {
+        HStack(alignment: .bottom) {
+            Text("\(label):")
+                .font(PaguroTheme.uiFont(size: 16, weight: .bold))
+
+            Spacer(minLength: 6)
+
+            Text(value)
+                .font(PaguroTheme.displayFont(size: 8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .foregroundStyle(PaguroTheme.outline)
+        .padding(.bottom, 4)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(PaguroTheme.rose)
+                .frame(height: 2)
         }
     }
 
-    private var panelPicker: some View {
-        HStack(spacing: 8) {
-            ForEach(InventoryPanelMode.allCases) { mode in
-                Button {
-                    panelMode = mode
-                } label: {
-                    Text(mode.displayName)
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundStyle(PaguroTheme.ink)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(panelMode == mode ? PaguroTheme.lagoon : Color.white.opacity(0.72))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(PaguroTheme.ink, lineWidth: 1.5)
-                        )
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
+    private func pixelProgress(title: String, value: Int, fill: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(PaguroTheme.uiFont(size: 15, weight: .bold))
+                .foregroundStyle(PaguroTheme.outline)
 
-    @ViewBuilder
-    private func panelContent(for pet: PaguroPet) -> some View {
-        switch panelMode {
-        case .shop:
-            listingPanel(
-                title: "Market Tide",
-                subtitle: "Spend energy on food, shells, and eggs",
-                rows: store.activeShopListings.map { listing in
-                    AnyView(shopRow(for: listing))
-                }
-            )
-        case .bag:
-            if store.activeBagListings.isEmpty {
-                emptyPanel(
-                    title: "Bag Empty",
-                    subtitle: "Buy food or eggs from the market to shape this paguro."
-                )
-            } else {
-                listingPanel(
-                    title: "Bag + Shell Rack",
-                    subtitle: "Use food to change color or pattern, or hatch an egg",
-                    rows: store.activeBagListings.map { listing in
-                        AnyView(bagRow(for: listing))
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(PaguroTheme.white)
+
+                    Rectangle()
+                        .fill(fill)
+                        .frame(width: proxy.size.width * (CGFloat(value) / 100))
+
+                    HStack(spacing: 0) {
+                        ForEach(0..<12, id: \.self) { _ in
+                            Rectangle()
+                                .fill(PaguroTheme.outline.opacity(0.18))
+                                .frame(width: 1)
+                            Spacer(minLength: 0)
+                        }
                     }
+                    .padding(.horizontal, 6)
+                }
+                .overlay(
+                    Rectangle()
+                        .stroke(PaguroTheme.outline, lineWidth: 2)
                 )
             }
+            .frame(height: 14)
         }
     }
 
-    private func listingPanel(title: String, subtitle: String, rows: [AnyView]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+    private func pillButton(title: String, isEnabled: Bool = true, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             Text(title)
-                .font(.system(size: 13, weight: .heavy, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink)
-
-            Text(subtitle)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink.opacity(0.68))
-
-            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                row
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(PaguroTheme.cream.opacity(0.96), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.5)
-        )
-    }
-
-    private func emptyPanel(title: String, subtitle: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 13, weight: .heavy, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink)
-
-            Text(subtitle)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink.opacity(0.68))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(PaguroTheme.cream.opacity(0.96), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.5)
-        )
-    }
-
-    private func shopRow(for listing: ShopListing) -> some View {
-        let canBuy = listing.isAffordable && !listing.isOwned
-
-        return HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(listing.title)
-                    .font(.system(size: 12, weight: .heavy, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink)
-
-                Text(listing.detail)
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.68))
-            }
-
-            Spacer(minLength: 8)
-
-            Text(listing.badge)
-                .font(.system(size: 10, weight: .heavy, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-                .background(Color.white.opacity(0.78), in: Capsule())
+                .font(PaguroTheme.displayFont(size: 8))
+                .foregroundStyle(PaguroTheme.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(isEnabled ? PaguroTheme.rose : PaguroTheme.gray)
+                .clipShape(Capsule())
                 .overlay(
                     Capsule()
-                        .stroke(PaguroTheme.ink, lineWidth: 1.2)
+                        .stroke(PaguroTheme.outline, lineWidth: 2)
                 )
-
-            Button(listing.isOwned ? "Owned" : "Buy") {
-                store.buyShopItem(listing.kind)
-            }
-            .font(.system(size: 11, weight: .bold, design: .rounded))
-            .foregroundStyle(PaguroTheme.ink)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(canBuy ? PaguroTheme.gold : Color.white.opacity(0.65))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(PaguroTheme.ink, lineWidth: 1.4)
-            )
-            .buttonStyle(.plain)
-            .disabled(!canBuy)
-            .opacity(canBuy || listing.isOwned ? 1 : 0.7)
         }
-        .padding(10)
-        .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.2)
-        )
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.76)
     }
 
-    private func bagRow(for listing: BagListing) -> some View {
-        let canUse = !listing.isEquipped
-
-        return HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(listing.title)
-                    .font(.system(size: 12, weight: .heavy, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink)
-
-                Text(listing.detail)
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.68))
-            }
-
-            Spacer(minLength: 8)
-
-            Text(listing.badge)
-                .font(.system(size: 10, weight: .heavy, design: .rounded))
-                .foregroundStyle(PaguroTheme.ink)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-                .background(Color.white.opacity(0.78), in: Capsule())
-                .overlay(
-                    Capsule()
-                        .stroke(PaguroTheme.ink, lineWidth: 1.2)
-                )
-
-            Button(listing.isEquipped ? "On" : actionTitle(for: listing.kind)) {
-                store.useBagItem(listing.kind)
-            }
-            .font(.system(size: 11, weight: .bold, design: .rounded))
-            .foregroundStyle(PaguroTheme.ink)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(canUse ? PaguroTheme.mint : Color.white.opacity(0.65))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(PaguroTheme.ink, lineWidth: 1.4)
-            )
-            .buttonStyle(.plain)
-            .disabled(!canUse)
-            .opacity(canUse || listing.isEquipped ? 1 : 0.7)
-        }
-        .padding(10)
-        .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.2)
-        )
+    private var cornerDecoration: some View {
+        Rectangle()
+            .fill(PaguroTheme.rose)
+            .frame(width: 10, height: 10)
+            .offset(x: 2, y: 2)
     }
 
-    private func actionTitle(for kind: BagItemKind) -> String {
-        switch kind {
-        case .food:
-            return "Feed"
-        case .shell:
-            return "Wear"
-        case .egg:
-            return "Hatch"
-        }
-    }
+    private var background: some View {
+        GeometryReader { proxy in
+            ZStack {
+                PaguroTheme.white
 
-    private func spriteScale(for pet: PaguroPet) -> CGFloat {
-        let growthScale = 0.88 + CGFloat(pet.growth) / 360
-        let moodScale: CGFloat = pet.mood == .charged ? 1.04 : 1
-        return growthScale * moodScale
+                Canvas { context, size in
+                    let spacing: CGFloat = 24
+                    for x in stride(from: 8 as CGFloat, through: size.width, by: spacing) {
+                        for y in stride(from: 8 as CGFloat, through: size.height, by: spacing) {
+                            context.fill(
+                                Path(ellipseIn: CGRect(x: x, y: y, width: 4, height: 4)),
+                                with: .color(PaguroTheme.dot)
+                            )
+                        }
+                    }
+                }
+
+                Rectangle()
+                    .fill(PaguroTheme.lilac)
+                    .frame(width: proxy.size.width * 1.4, height: 72)
+                    .rotationEffect(.degrees(-3))
+                    .offset(y: -proxy.size.height * 0.36)
+
+                Rectangle()
+                    .fill(PaguroTheme.lilac)
+                    .frame(width: proxy.size.width * 1.4, height: 72)
+                    .rotationEffect(.degrees(-3))
+                    .offset(y: proxy.size.height * 0.38)
+            }
+            .ignoresSafeArea()
+        }
     }
 
     private func foodCount(for pet: PaguroPet) -> Int {
@@ -685,124 +596,37 @@ struct PaguroWidgetView: View {
         }
     }
 
-    private func bubble(size: CGFloat, opacity: Double) -> some View {
-        Circle()
-            .fill(.white.opacity(opacity))
-            .frame(width: size, height: size)
+    private func iconKind(for kind: ShopItemKind) -> PixelIconKind {
+        switch kind {
+        case .food(let food):
+            return iconKind(for: food)
+        case .shell(let shell):
+            return .shell(shell)
+        case .egg:
+            return .egg
+        }
     }
 
-    private func metricCard(title: String, value: String, tint: Color, foreground: Color) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title.uppercased())
-                .font(.system(size: 9, weight: .bold, design: .rounded))
-                .foregroundStyle(foreground.opacity(0.65))
-
-            Text(value)
-                .font(.system(size: 12, weight: .heavy, design: .rounded))
-                .foregroundStyle(foreground)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+    private func iconKind(for kind: BagItemKind) -> PixelIconKind {
+        switch kind {
+        case .food(let food):
+            return iconKind(for: food)
+        case .shell(let shell):
+            return .shell(shell)
+        case .egg:
+            return .egg
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(tint, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.5)
-        )
     }
 
-    private func progressCard(title: String, value: Int, tint: Color) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink)
-
-                Spacer()
-
-                Text("\(value)%")
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.7))
-            }
-
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(.white.opacity(0.75))
-
-                    Capsule()
-                        .fill(tint)
-                        .frame(width: proxy.size.width * (CGFloat(value) / 100))
-                }
-                .overlay(
-                    Capsule()
-                        .stroke(PaguroTheme.ink, lineWidth: 1.4)
-                )
-            }
-            .frame(height: 14)
+    private func iconKind(for food: FoodKind) -> PixelIconKind {
+        switch food {
+        case .berryBits:
+            return .berry
+        case .kelpCrunch:
+            return .kelp
+        case .sunMorsel:
+            return .sun
         }
-        .padding(10)
-        .background(PaguroTheme.cream.opacity(0.92), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(PaguroTheme.ink, lineWidth: 1.5)
-        )
-    }
-
-    private func actionButton(
-        title: String,
-        subtitle: String,
-        tint: Color,
-        isEnabled: Bool = true,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 12, weight: .heavy, design: .rounded))
-                Text(subtitle)
-                    .font(.system(size: 9, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PaguroTheme.ink.opacity(0.7))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .background(tint, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(PaguroTheme.ink, lineWidth: 1.5)
-            )
-        }
-        .buttonStyle(.plain)
-        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .disabled(!isEnabled)
-        .opacity(isEnabled ? 1 : 0.72)
-    }
-
-    private var background: some View {
-        ZStack {
-            LinearGradient(
-                colors: [PaguroTheme.cream, Color.white],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-
-            VStack {
-                RoundedRectangle(cornerRadius: 0)
-                    .fill(PaguroTheme.lilac.opacity(0.45))
-                    .frame(height: 52)
-                    .offset(y: -26)
-                Spacer()
-                RoundedRectangle(cornerRadius: 0)
-                    .fill(PaguroTheme.lilac.opacity(0.3))
-                    .frame(height: 48)
-                    .offset(y: 24)
-            }
-        }
-        .ignoresSafeArea()
     }
 }
 
@@ -819,5 +643,262 @@ private enum InventoryPanelMode: String, CaseIterable, Identifiable {
         case .bag:
             return "Bag"
         }
+    }
+}
+
+private enum PixelIconKind {
+    case berry
+    case kelp
+    case sun
+    case shell(ShellVariant)
+    case egg
+}
+
+private struct PixelInventoryIconView: View {
+    let kind: PixelIconKind
+
+    var body: some View {
+        PixelGlyphView(blocks: blocks, gridSize: 16)
+    }
+
+    private var blocks: [PixelBlock] {
+        switch kind {
+        case .berry:
+            return [
+                .init(6, 1, 2, 1, PaguroTheme.leaf),
+                .init(5, 2, 4, 1, PaguroTheme.leaf),
+                .init(4, 4, 6, 6, PaguroTheme.outline),
+                .init(5, 5, 4, 4, PaguroTheme.rose),
+                .init(6, 10, 2, 1, PaguroTheme.rose),
+                .init(5, 6, 1, 1, PaguroTheme.white),
+                .init(8, 7, 1, 1, PaguroTheme.white),
+                .init(6, 8, 1, 1, PaguroTheme.white),
+            ]
+        case .kelp:
+            return [
+                .init(6, 2, 1, 10, PaguroTheme.leaf),
+                .init(7, 1, 1, 11, PaguroTheme.leaf),
+                .init(8, 3, 1, 8, PaguroTheme.leaf),
+                .init(5, 4, 1, 2, PaguroTheme.outline),
+                .init(9, 5, 1, 2, PaguroTheme.outline),
+                .init(4, 7, 2, 1, PaguroTheme.outline),
+                .init(8, 8, 2, 1, PaguroTheme.outline),
+            ]
+        case .sun:
+            return [
+                .init(6, 3, 4, 4, PaguroTheme.outline),
+                .init(7, 4, 2, 2, PaguroTheme.gold),
+                .init(7, 1, 2, 2, PaguroTheme.gold),
+                .init(7, 7, 2, 2, PaguroTheme.gold),
+                .init(4, 4, 2, 2, PaguroTheme.gold),
+                .init(10, 4, 2, 2, PaguroTheme.gold),
+                .init(5, 2, 1, 1, PaguroTheme.gold),
+                .init(10, 2, 1, 1, PaguroTheme.gold),
+                .init(5, 8, 1, 1, PaguroTheme.gold),
+                .init(10, 8, 1, 1, PaguroTheme.gold),
+            ]
+        case .shell(let shell):
+            let base = shellBase(shell)
+            let accent = shellAccent(shell)
+            return [
+                .init(6, 2, 4, 1, PaguroTheme.outline),
+                .init(5, 3, 6, 1, PaguroTheme.outline),
+                .init(4, 4, 8, 1, PaguroTheme.outline),
+                .init(4, 5, 8, 1, PaguroTheme.outline),
+                .init(3, 6, 8, 1, PaguroTheme.outline),
+                .init(3, 7, 7, 1, PaguroTheme.outline),
+                .init(4, 8, 5, 1, PaguroTheme.outline),
+                .init(6, 3, 3, 1, base),
+                .init(5, 4, 5, 1, base),
+                .init(5, 5, 5, 1, base),
+                .init(4, 6, 5, 1, base),
+                .init(4, 7, 4, 1, base),
+                .init(7, 4, 1, 1, accent),
+                .init(8, 5, 1, 2, accent),
+                .init(6, 6, 1, 2, accent),
+            ]
+        case .egg:
+            return [
+                .init(5, 2, 4, 1, PaguroTheme.outline),
+                .init(4, 3, 6, 1, PaguroTheme.outline),
+                .init(4, 4, 6, 1, PaguroTheme.outline),
+                .init(3, 5, 8, 1, PaguroTheme.outline),
+                .init(3, 6, 8, 2, PaguroTheme.outline),
+                .init(4, 8, 6, 2, PaguroTheme.outline),
+                .init(5, 10, 4, 1, PaguroTheme.outline),
+                .init(5, 3, 4, 1, PaguroTheme.white),
+                .init(5, 4, 4, 1, PaguroTheme.white),
+                .init(4, 5, 6, 3, PaguroTheme.white),
+                .init(5, 8, 4, 2, PaguroTheme.white),
+                .init(6, 4, 1, 1, PaguroTheme.rose),
+                .init(4, 7, 1, 1, PaguroTheme.rose),
+                .init(8, 8, 1, 1, PaguroTheme.rose),
+            ]
+        }
+    }
+
+    private func shellBase(_ shell: ShellVariant) -> Color {
+        switch shell {
+        case .sand:
+            return PaguroTheme.sand
+        case .sunset:
+            return PaguroTheme.cream
+        case .lagoon:
+            return PaguroTheme.white
+        }
+    }
+
+    private func shellAccent(_ shell: ShellVariant) -> Color {
+        switch shell {
+        case .sand:
+            return PaguroTheme.sandDark
+        case .sunset:
+            return PaguroTheme.rose
+        case .lagoon:
+            return PaguroTheme.water
+        }
+    }
+}
+
+private struct PixelPetSpriteView: View {
+    let pet: PaguroPet
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            PixelGlyphView(blocks: shadowBlocks, gridSize: 16)
+            PixelGlyphView(blocks: spriteBlocks, gridSize: 16)
+                .offset(y: -8)
+        }
+    }
+
+    private var spriteBlocks: [PixelBlock] {
+        let shellBase = shellBaseColor
+        let shellAccent = shellAccentColor
+        let body = bodyColor
+        let bodyAccent = bodyColor.opacity(0.78)
+
+        return [
+            .init(9, 1, 4, 1, PaguroTheme.outline),
+            .init(8, 2, 6, 1, PaguroTheme.outline),
+            .init(7, 3, 7, 1, PaguroTheme.outline),
+            .init(7, 4, 8, 1, PaguroTheme.outline),
+            .init(6, 5, 8, 1, PaguroTheme.outline),
+            .init(6, 6, 7, 1, PaguroTheme.outline),
+            .init(7, 7, 5, 1, PaguroTheme.outline),
+            .init(9, 2, 3, 1, shellBase),
+            .init(8, 3, 5, 1, shellBase),
+            .init(8, 4, 6, 1, shellBase),
+            .init(7, 5, 6, 1, shellBase),
+            .init(7, 6, 5, 1, shellBase),
+            .init(10, 3, 1, 1, shellAccent),
+            .init(11, 4, 1, 2, shellAccent),
+            .init(9, 5, 1, 2, shellAccent),
+            .init(2, 10, 3, 1, PaguroTheme.outline),
+            .init(1, 9, 2, 1, PaguroTheme.outline),
+            .init(4, 11, 2, 1, PaguroTheme.outline),
+            .init(2, 11, 2, 1, body),
+            .init(4, 10, 1, 1, body),
+            .init(4, 8, 1, 3, PaguroTheme.outline),
+            .init(6, 9, 1, 2, PaguroTheme.outline),
+            .init(3, 7, 2, 2, PaguroTheme.white),
+            .init(5, 8, 2, 2, PaguroTheme.white),
+            .init(4, 8, 1, 1, PaguroTheme.outline),
+            .init(6, 9, 1, 1, PaguroTheme.outline),
+            .init(4, 12, 3, 1, body),
+            .init(5, 13, 2, 1, bodyAccent),
+            .init(5, 14, 1, 1, PaguroTheme.outline),
+            .init(7, 13, 1, 1, PaguroTheme.outline),
+        ] + patternBlocks(bodyAccent: bodyAccent)
+    }
+
+    private var shadowBlocks: [PixelBlock] {
+        [
+            .init(4, 14, 6, 1, PaguroTheme.outline.opacity(0.2)),
+            .init(5, 15, 4, 1, PaguroTheme.outline.opacity(0.2)),
+        ]
+    }
+
+    private var bodyColor: Color {
+        Color(hue: pet.bodyHue / 360, saturation: 0.72, brightness: 0.98)
+    }
+
+    private var shellBaseColor: Color {
+        switch pet.shell {
+        case .sand:
+            return PaguroTheme.sand
+        case .sunset:
+            return PaguroTheme.cream
+        case .lagoon:
+            return PaguroTheme.white
+        }
+    }
+
+    private var shellAccentColor: Color {
+        switch pet.shell {
+        case .sand:
+            return PaguroTheme.sandDark
+        case .sunset:
+            return PaguroTheme.rose
+        case .lagoon:
+            return PaguroTheme.water
+        }
+    }
+
+    private func patternBlocks(bodyAccent: Color) -> [PixelBlock] {
+        switch pet.pattern {
+        case .plain:
+            return []
+        case .speckles:
+            return [
+                .init(5, 12, 1, 1, bodyAccent),
+                .init(6, 13, 1, 1, bodyAccent),
+            ]
+        case .stripes:
+            return [
+                .init(4, 12, 1, 2, bodyAccent),
+                .init(6, 12, 1, 2, bodyAccent),
+            ]
+        }
+    }
+}
+
+private struct PixelGlyphView: View {
+    let blocks: [PixelBlock]
+    let gridSize: Int
+
+    var body: some View {
+        GeometryReader { proxy in
+            Canvas { context, size in
+                let unit = min(size.width, size.height) / CGFloat(gridSize)
+
+                for block in blocks {
+                    let rect = CGRect(
+                        x: CGFloat(block.x) * unit,
+                        y: CGFloat(block.y) * unit,
+                        width: CGFloat(block.width) * unit,
+                        height: CGFloat(block.height) * unit
+                    )
+
+                    context.fill(Path(rect), with: .color(block.color))
+                }
+            }
+        }
+        .aspectRatio(1, contentMode: .fit)
+    }
+}
+
+private struct PixelBlock {
+    let x: Int
+    let y: Int
+    let width: Int
+    let height: Int
+    let color: Color
+
+    init(_ x: Int, _ y: Int, _ width: Int, _ height: Int, _ color: Color) {
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.color = color
     }
 }
