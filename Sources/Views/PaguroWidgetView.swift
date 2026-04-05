@@ -333,7 +333,7 @@ struct PaguroWidgetView: View {
 
             PixelPetSpriteView(pet: pet)
                 .frame(width: 144, height: 144)
-                .padding(.bottom, 16)
+                .padding(.bottom, 8)
                 .scaleEffect(pet.mood == .charged ? 1.04 : 1)
                 .animation(.easeInOut(duration: 0.18), value: pet.mood)
                 .animation(.easeInOut(duration: 0.18), value: pet.pattern)
@@ -734,12 +734,13 @@ private struct WidgetItemVisual {
 
 private struct PixelPetSpriteView: View {
     let pet: PaguroPet
+    private let gridSize = 24
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            PixelGlyphView(blocks: shadowBlocks, gridSize: 16)
-            PixelGlyphView(blocks: spriteBlocks, gridSize: 16)
-                .offset(y: -2)
+            PixelGlyphView(blocks: shadowBlocks, gridSize: gridSize)
+            PixelGlyphView(blocks: spriteBlocks, gridSize: gridSize)
+                .offset(y: 3)
         }
     }
 
@@ -750,52 +751,65 @@ private struct PixelPetSpriteView: View {
         let bodyAccent = bodyColor.opacity(0.78)
 
         return [
-            .init(8, 1, 3, 1, PaguroTheme.outline),
-            .init(7, 2, 5, 1, PaguroTheme.outline),
-            .init(6, 3, 7, 1, PaguroTheme.outline),
-            .init(5, 4, 8, 1, PaguroTheme.outline),
-            .init(5, 5, 9, 1, PaguroTheme.outline),
-            .init(4, 6, 9, 1, PaguroTheme.outline),
-            .init(4, 7, 8, 1, PaguroTheme.outline),
-            .init(5, 8, 7, 1, PaguroTheme.outline),
-            .init(6, 9, 5, 1, PaguroTheme.outline),
-            .init(7, 10, 3, 1, PaguroTheme.outline),
-            .init(8, 2, 2, 1, shellBase),
-            .init(7, 3, 4, 1, shellBase),
-            .init(6, 4, 6, 1, shellBase),
-            .init(6, 5, 7, 1, shellBase),
-            .init(5, 6, 7, 1, shellBase),
-            .init(5, 7, 6, 1, shellBase),
-            .init(6, 8, 5, 1, shellBase),
-            .init(7, 9, 3, 1, shellBase),
-            .init(8, 10, 1, 1, shellBase),
-            .init(10, 3, 1, 1, shellAccent),
-            .init(10, 4, 1, 2, shellAccent),
-            .init(8, 5, 1, 3, shellAccent),
-            .init(7, 7, 2, 1, shellAccent),
-            .init(9, 8, 1, 1, shellAccent),
-            .init(2, 10, 3, 1, PaguroTheme.outline),
-            .init(1, 9, 2, 1, PaguroTheme.outline),
-            .init(4, 11, 2, 1, PaguroTheme.outline),
-            .init(2, 11, 2, 1, body),
-            .init(4, 10, 1, 1, body),
-            .init(4, 8, 1, 3, PaguroTheme.outline),
-            .init(6, 9, 1, 2, PaguroTheme.outline),
-            .init(3, 7, 2, 2, PaguroTheme.white),
-            .init(5, 8, 2, 2, PaguroTheme.white),
-            .init(4, 8, 1, 1, PaguroTheme.outline),
-            .init(6, 9, 1, 1, PaguroTheme.outline),
-            .init(4, 12, 4, 1, body),
-            .init(5, 13, 3, 1, bodyAccent),
-            .init(5, 14, 1, 1, PaguroTheme.outline),
-            .init(7, 14, 1, 1, PaguroTheme.outline),
+            .init(13, 2, 3, 1, PaguroTheme.outline),
+            .init(12, 3, 5, 1, PaguroTheme.outline),
+            .init(11, 4, 7, 1, PaguroTheme.outline),
+            .init(10, 5, 9, 1, PaguroTheme.outline),
+            .init(9, 6, 10, 1, PaguroTheme.outline),
+            .init(8, 7, 11, 1, PaguroTheme.outline),
+            .init(8, 8, 11, 1, PaguroTheme.outline),
+            .init(8, 9, 12, 1, PaguroTheme.outline),
+            .init(8, 10, 12, 1, PaguroTheme.outline),
+            .init(7, 11, 12, 1, PaguroTheme.outline),
+            .init(7, 12, 11, 1, PaguroTheme.outline),
+            .init(7, 13, 10, 1, PaguroTheme.outline),
+            .init(8, 14, 8, 1, PaguroTheme.outline),
+            .init(8, 15, 7, 1, PaguroTheme.outline),
+            .init(9, 16, 5, 1, PaguroTheme.outline),
+            .init(10, 17, 3, 1, PaguroTheme.outline),
+            .init(13, 3, 2, 1, shellBase),
+            .init(12, 4, 5, 1, shellBase),
+            .init(11, 5, 7, 1, shellBase),
+            .init(10, 6, 8, 1, shellBase),
+            .init(9, 7, 9, 1, shellBase),
+            .init(9, 8, 9, 1, shellBase),
+            .init(9, 9, 10, 1, shellBase),
+            .init(9, 10, 10, 1, shellBase),
+            .init(8, 11, 9, 1, shellBase),
+            .init(8, 12, 8, 1, shellBase),
+            .init(8, 13, 7, 1, shellBase),
+            .init(9, 14, 5, 1, shellBase),
+            .init(9, 15, 4, 1, shellBase),
+            .init(10, 16, 2, 1, shellBase),
+            .init(14, 5, 1, 4, shellAccent),
+            .init(12, 7, 1, 4, shellAccent),
+            .init(15, 8, 1, 4, shellAccent),
+            .init(13, 11, 2, 1, shellAccent),
+            .init(11, 12, 2, 1, shellAccent),
+            .init(12, 13, 1, 2, shellAccent),
+            .init(7, 9, 1, 5, PaguroTheme.outline),
+            .init(6, 10, 1, 4, PaguroTheme.outline),
+            .init(7, 10, 2, 4, PaguroTheme.white),
+            .init(6, 11, 1, 3, PaguroTheme.white),
+            .init(5, 13, 1, 5, PaguroTheme.outline),
+            .init(4, 14, 2, 1, PaguroTheme.outline),
+            .init(3, 15, 3, 1, PaguroTheme.outline),
+            .init(5, 16, 3, 1, PaguroTheme.outline),
+            .init(4, 17, 2, 1, PaguroTheme.outline),
+            .init(6, 17, 3, 1, PaguroTheme.outline),
+            .init(4, 15, 2, 1, body),
+            .init(5, 16, 3, 1, body),
+            .init(6, 17, 3, 1, bodyAccent),
+            .init(6, 18, 4, 1, body),
+            .init(8, 19, 1, 3, PaguroTheme.outline),
+            .init(11, 19, 1, 3, PaguroTheme.outline),
         ] + patternBlocks(bodyAccent: bodyAccent)
     }
 
     private var shadowBlocks: [PixelBlock] {
         [
-            .init(3, 14, 8, 1, PaguroTheme.outline.opacity(0.16)),
-            .init(4, 15, 6, 1, PaguroTheme.outline.opacity(0.16)),
+            .init(6, 20, 8, 1, PaguroTheme.outline.opacity(0.16)),
+            .init(7, 21, 6, 1, PaguroTheme.outline.opacity(0.16)),
         ]
     }
 
@@ -831,13 +845,13 @@ private struct PixelPetSpriteView: View {
             return []
         case .speckles:
             return [
-                .init(5, 12, 1, 1, bodyAccent),
-                .init(6, 13, 1, 1, bodyAccent),
+                .init(7, 17, 1, 1, bodyAccent),
+                .init(8, 18, 1, 1, bodyAccent),
             ]
         case .stripes:
             return [
-                .init(4, 12, 1, 2, bodyAccent),
-                .init(6, 12, 1, 2, bodyAccent),
+                .init(6, 17, 1, 2, bodyAccent),
+                .init(8, 17, 1, 2, bodyAccent),
             ]
         }
     }
