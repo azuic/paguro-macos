@@ -307,7 +307,7 @@ struct PaguroWidgetView: View {
 
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(PaguroTheme.sandSoft)
-                    .frame(height: 84)
+                    .frame(height: 90)
                     .overlay(alignment: .top) {
                         Rectangle()
                             .fill(PaguroTheme.sandDark.opacity(0.45))
@@ -332,14 +332,14 @@ struct PaguroWidgetView: View {
             .frame(maxHeight: .infinity, alignment: .top)
 
             PixelPetSpriteView(pet: pet)
-                .frame(width: 128, height: 128)
-                .padding(.bottom, 28)
+                .frame(width: 144, height: 144)
+                .padding(.bottom, 16)
                 .scaleEffect(pet.mood == .charged ? 1.04 : 1)
                 .animation(.easeInOut(duration: 0.18), value: pet.mood)
                 .animation(.easeInOut(duration: 0.18), value: pet.pattern)
                 .animation(.easeInOut(duration: 0.18), value: pet.shell)
         }
-        .frame(height: 220)
+        .frame(height: 208)
         .overlay(
             RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .stroke(PaguroTheme.borderSoft, lineWidth: 1)
@@ -739,7 +739,7 @@ private struct PixelPetSpriteView: View {
         ZStack(alignment: .bottom) {
             PixelGlyphView(blocks: shadowBlocks, gridSize: 16)
             PixelGlyphView(blocks: spriteBlocks, gridSize: 16)
-                .offset(y: -8)
+                .offset(y: -2)
         }
     }
 
@@ -750,21 +750,27 @@ private struct PixelPetSpriteView: View {
         let bodyAccent = bodyColor.opacity(0.78)
 
         return [
-            .init(9, 1, 4, 1, PaguroTheme.outline),
-            .init(8, 2, 6, 1, PaguroTheme.outline),
-            .init(7, 3, 7, 1, PaguroTheme.outline),
-            .init(7, 4, 8, 1, PaguroTheme.outline),
-            .init(6, 5, 8, 1, PaguroTheme.outline),
-            .init(6, 6, 7, 1, PaguroTheme.outline),
-            .init(7, 7, 5, 1, PaguroTheme.outline),
-            .init(9, 2, 3, 1, shellBase),
-            .init(8, 3, 5, 1, shellBase),
-            .init(8, 4, 6, 1, shellBase),
-            .init(7, 5, 6, 1, shellBase),
-            .init(7, 6, 5, 1, shellBase),
-            .init(10, 3, 1, 1, shellAccent),
-            .init(11, 4, 1, 2, shellAccent),
+            .init(7, 2, 4, 1, PaguroTheme.outline),
+            .init(6, 3, 6, 1, PaguroTheme.outline),
+            .init(5, 4, 7, 1, PaguroTheme.outline),
+            .init(5, 5, 8, 1, PaguroTheme.outline),
+            .init(4, 6, 8, 1, PaguroTheme.outline),
+            .init(4, 7, 7, 1, PaguroTheme.outline),
+            .init(5, 8, 5, 1, PaguroTheme.outline),
+            .init(6, 9, 3, 1, PaguroTheme.outline),
+            .init(7, 3, 3, 1, shellBase),
+            .init(6, 4, 5, 1, shellBase),
+            .init(6, 5, 6, 1, shellBase),
+            .init(5, 6, 6, 1, shellBase),
+            .init(5, 7, 5, 1, shellBase),
+            .init(6, 8, 3, 1, shellBase),
+            .init(8, 4, 1, 1, shellAccent),
             .init(9, 5, 1, 2, shellAccent),
+            .init(7, 6, 1, 2, shellAccent),
+            .init(6, 9, 2, 1, shellBase),
+            .init(5, 9, 2, 1, PaguroTheme.outline),
+            .init(4, 10, 3, 1, PaguroTheme.outline),
+            .init(5, 10, 2, 1, shellBase),
             .init(2, 10, 3, 1, PaguroTheme.outline),
             .init(1, 9, 2, 1, PaguroTheme.outline),
             .init(4, 11, 2, 1, PaguroTheme.outline),
@@ -776,17 +782,17 @@ private struct PixelPetSpriteView: View {
             .init(5, 8, 2, 2, PaguroTheme.white),
             .init(4, 8, 1, 1, PaguroTheme.outline),
             .init(6, 9, 1, 1, PaguroTheme.outline),
-            .init(4, 12, 3, 1, body),
-            .init(5, 13, 2, 1, bodyAccent),
+            .init(4, 12, 4, 1, body),
+            .init(5, 13, 3, 1, bodyAccent),
             .init(5, 14, 1, 1, PaguroTheme.outline),
-            .init(7, 13, 1, 1, PaguroTheme.outline),
+            .init(7, 14, 1, 1, PaguroTheme.outline),
         ] + patternBlocks(bodyAccent: bodyAccent)
     }
 
     private var shadowBlocks: [PixelBlock] {
         [
-            .init(4, 14, 6, 1, PaguroTheme.outline.opacity(0.16)),
-            .init(5, 15, 4, 1, PaguroTheme.outline.opacity(0.16)),
+            .init(3, 14, 7, 1, PaguroTheme.outline.opacity(0.16)),
+            .init(4, 15, 5, 1, PaguroTheme.outline.opacity(0.16)),
         ]
     }
 
