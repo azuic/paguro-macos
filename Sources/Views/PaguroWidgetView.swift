@@ -4,6 +4,10 @@ struct PaguroWidgetView: View {
     @EnvironmentObject private var store: PaguroStore
     @State private var panelMode: InventoryPanelMode = .shop
 
+    private let statusWidth: CGFloat = 154
+    private let marketWidth: CGFloat = 184
+    private let windowHeight: CGFloat = 344
+
     private let itemColumns = [
         GridItem(.flexible(), spacing: 6),
         GridItem(.flexible(), spacing: 6),
@@ -20,14 +24,14 @@ struct PaguroWidgetView: View {
                 petDock
                 osWindow(for: pet)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 14)
             .padding(.vertical, 14)
         }
         .background(background)
     }
 
     private var titleBanner: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 3) {
             HStack(spacing: 6) {
                 Text("PAGURO")
                 Text("✦")
@@ -35,15 +39,18 @@ struct PaguroWidgetView: View {
                     .shadow(color: PaguroTheme.rose, radius: 0, x: 2, y: 2)
                 Text("OS")
             }
-            .font(PaguroTheme.displayFont(size: 20))
+            .font(PaguroTheme.displayFont(size: 18))
             .foregroundStyle(PaguroTheme.rose)
             .shadow(color: PaguroTheme.darkRose, radius: 0, x: 2, y: 2)
             .textCase(.uppercase)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
 
             Text("desktop pet edition")
-                .font(PaguroTheme.displayFont(size: 9))
+                .font(PaguroTheme.displayFont(size: 8))
                 .foregroundStyle(PaguroTheme.rose)
-                .padding(.horizontal, 18)
+                .lineLimit(1)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 6)
                 .background(PaguroTheme.cream)
                 .overlay(
@@ -52,7 +59,7 @@ struct PaguroWidgetView: View {
                 )
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 6)
+        .padding(.top, 4)
     }
 
     private var providerStrip: some View {
@@ -62,7 +69,7 @@ struct PaguroWidgetView: View {
                     store.select(provider)
                 } label: {
                     Text(provider.displayName.uppercased())
-                        .font(PaguroTheme.displayFont(size: 9))
+                        .font(PaguroTheme.uiFont(size: 15, weight: .bold))
                         .foregroundStyle(store.selectedProvider == provider ? PaguroTheme.white : PaguroTheme.outline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
@@ -87,20 +94,22 @@ struct PaguroWidgetView: View {
                     Button {
                         store.selectPet(pet.id)
                     } label: {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 3) {
                             HStack(spacing: 5) {
                                 Rectangle()
                                     .fill(pet.mood == .charged ? PaguroTheme.gold : PaguroTheme.rose)
                                     .frame(width: 8, height: 8)
 
                                 Text(pet.name)
-                                    .font(PaguroTheme.displayFont(size: 8))
+                                    .font(PaguroTheme.uiFont(size: 17, weight: .bold))
                                     .lineLimit(1)
+                                    .minimumScaleFactor(0.75)
                             }
 
                             Text("\(pet.stage.displayName) / \(pet.weightText)")
-                                .font(PaguroTheme.uiFont(size: 14, weight: .bold))
+                                .font(PaguroTheme.uiFont(size: 13, weight: .bold))
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
                         .foregroundStyle(PaguroTheme.outline)
                         .frame(width: 144, alignment: .leading)
@@ -122,13 +131,13 @@ struct PaguroWidgetView: View {
     private func osWindow(for pet: PaguroPet) -> some View {
         HStack(alignment: .top, spacing: 10) {
             statusPanel(for: pet)
-                .frame(width: 136)
+                .frame(width: statusWidth, height: windowHeight)
 
             terrariumPanel(for: pet)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: windowHeight, maxHeight: windowHeight, alignment: .top)
 
             marketPanel(for: pet)
-                .frame(width: 154)
+                .frame(width: marketWidth, height: windowHeight)
         }
         .padding(10)
         .background(PaguroTheme.white)
@@ -149,7 +158,7 @@ struct PaguroWidgetView: View {
             headerFill: PaguroTheme.rose,
             headerForeground: PaguroTheme.white
         ) {
-            VStack(spacing: 10) {
+            VStack(spacing: 9) {
                 statRow(label: "Name", value: pet.name)
                 statRow(label: "Stage", value: pet.stage.displayName)
                 statRow(label: "Weight", value: pet.weightText)
@@ -159,8 +168,10 @@ struct PaguroWidgetView: View {
 
                 VStack(spacing: 8) {
                     Text("+ \(pet.energy.formatted())")
-                        .font(PaguroTheme.displayFont(size: 11))
+                        .font(PaguroTheme.displayFont(size: 10))
                         .foregroundStyle(PaguroTheme.gold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 10)
                         .frame(maxWidth: .infinity)
@@ -173,11 +184,16 @@ struct PaguroWidgetView: View {
                     Button {
                         store.refreshSelectedProviderTelemetry()
                     } label: {
-                        VStack(spacing: 3) {
+                        VStack(spacing: 2) {
                             Text(store.selectedProvider == .claude ? "SYNC CLAUDE" : "PULSE DEMO")
-                                .font(PaguroTheme.displayFont(size: 9))
-                            Text(store.selectedProviderStatusSubtitle.lowercased())
-                                .font(PaguroTheme.uiFont(size: 12, weight: .bold))
+                                .font(PaguroTheme.displayFont(size: 8))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+
+                            Text(shortActionSubtitle)
+                                .font(PaguroTheme.uiFont(size: 11, weight: .bold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
                         .foregroundStyle(PaguroTheme.white)
                         .frame(maxWidth: .infinity)
@@ -190,13 +206,17 @@ struct PaguroWidgetView: View {
                     }
                     .buttonStyle(.plain)
 
-                    VStack(spacing: 3) {
+                    VStack(spacing: 2) {
                         Text(store.selectedProviderActivityLabel.uppercased())
-                            .font(PaguroTheme.displayFont(size: 7))
+                            .font(PaguroTheme.uiFont(size: 10, weight: .bold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+
                         Text(store.selectedProviderUsageSummary)
-                            .font(PaguroTheme.uiFont(size: 12, weight: .bold))
+                            .font(PaguroTheme.uiFont(size: 11, weight: .bold))
                             .multilineTextAlignment(.center)
-                            .lineLimit(3)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .foregroundStyle(PaguroTheme.outline)
                 }
@@ -258,7 +278,7 @@ struct PaguroWidgetView: View {
     }
 
     private var screenFloor: some View {
-        GeometryReader { proxy in
+        GeometryReader { _ in
             ZStack(alignment: .top) {
                 Rectangle()
                     .fill(PaguroTheme.sand)
@@ -318,8 +338,10 @@ struct PaguroWidgetView: View {
                 }
 
                 Text(panelMode == .shop ? "food, shells, eggs" : "feed, equip, hatch")
-                    .font(PaguroTheme.uiFont(size: 13, weight: .bold))
+                    .font(PaguroTheme.uiFont(size: 12, weight: .bold))
                     .foregroundStyle(PaguroTheme.outline.opacity(0.78))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
 
                 HStack(spacing: 4) {
                     inventoryTicker(label: "Shells", value: "\(pet.inventory.ownedShells.count)")
@@ -335,7 +357,7 @@ struct PaguroWidgetView: View {
             panelMode = mode
         } label: {
             Text(mode.displayName)
-                .font(PaguroTheme.displayFont(size: 8))
+                .font(PaguroTheme.uiFont(size: 15, weight: .bold))
                 .foregroundStyle(PaguroTheme.outline)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
@@ -394,7 +416,7 @@ struct PaguroWidgetView: View {
                     .padding(10)
 
                 Text(badge.uppercased())
-                    .font(PaguroTheme.displayFont(size: 7))
+                    .font(PaguroTheme.uiFont(size: 11, weight: .bold))
                     .foregroundStyle(PaguroTheme.gold)
                     .padding(.horizontal, 4)
                     .padding(.vertical, 3)
@@ -425,7 +447,10 @@ struct PaguroWidgetView: View {
     private func inventoryTicker(label: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(label)
-                .font(PaguroTheme.displayFont(size: 6))
+                .font(PaguroTheme.uiFont(size: 10, weight: .bold))
+                .textCase(.uppercase)
+                .lineLimit(1)
+
             Text(value)
                 .font(PaguroTheme.uiFont(size: 14, weight: .bold))
         }
@@ -445,26 +470,29 @@ struct PaguroWidgetView: View {
         headerForeground: Color,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        ZStack {
+        ZStack(alignment: .top) {
             PaguroTheme.cream
 
-            VStack(spacing: 10) {
-                Text(title)
-                    .font(PaguroTheme.displayFont(size: 9))
-                    .foregroundStyle(headerForeground)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(headerFill)
-                    .overlay(
-                        Rectangle()
-                            .stroke(PaguroTheme.outline, lineWidth: 2)
-                    )
-                    .offset(y: -8)
+            VStack(spacing: 0) {
+                Color.clear
+                    .frame(height: 18)
 
                 content()
-                    .padding(.top, -4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
             .padding(8)
+
+            Text(title)
+                .font(PaguroTheme.displayFont(size: 9))
+                .foregroundStyle(headerForeground)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(headerFill)
+                .overlay(
+                    Rectangle()
+                        .stroke(PaguroTheme.outline, lineWidth: 2)
+                )
+                .offset(y: -8)
         }
         .overlay(
             Rectangle()
@@ -477,16 +505,17 @@ struct PaguroWidgetView: View {
     }
 
     private func statRow(label: String, value: String) -> some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text("\(label):")
                 .font(PaguroTheme.uiFont(size: 16, weight: .bold))
 
             Spacer(minLength: 6)
 
             Text(value)
-                .font(PaguroTheme.displayFont(size: 8))
+                .font(PaguroTheme.uiFont(size: 17, weight: .bold))
+                .foregroundStyle(PaguroTheme.rose)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.75)
         }
         .foregroundStyle(PaguroTheme.outline)
         .padding(.bottom, 4)
@@ -534,8 +563,9 @@ struct PaguroWidgetView: View {
     private func pillButton(title: String, isEnabled: Bool = true, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(PaguroTheme.displayFont(size: 8))
+                .font(PaguroTheme.uiFont(size: 16, weight: .bold))
                 .foregroundStyle(PaguroTheme.white)
+                .textCase(.lowercase)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
                 .background(isEnabled ? PaguroTheme.rose : PaguroTheme.gray)
@@ -548,6 +578,15 @@ struct PaguroWidgetView: View {
         .buttonStyle(.plain)
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1 : 0.76)
+    }
+
+    private var shortActionSubtitle: String {
+        switch store.selectedProvider {
+        case .claude:
+            return "live energy"
+        case .openAI:
+            return "demo energy"
+        }
     }
 
     private var cornerDecoration: some View {
@@ -867,7 +906,7 @@ private struct PixelGlyphView: View {
     let gridSize: Int
 
     var body: some View {
-        GeometryReader { proxy in
+        GeometryReader { _ in
             Canvas { context, size in
                 let unit = min(size.width, size.height) / CGFloat(gridSize)
 
