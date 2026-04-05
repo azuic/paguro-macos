@@ -23,6 +23,7 @@ struct PaguroWidgetView: View {
                 providerStrip
                 petDock
                 osWindow(for: pet)
+                    .padding(.top, 14)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 14)
@@ -59,7 +60,8 @@ struct PaguroWidgetView: View {
                 )
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 4)
+        .padding(.top, 12)
+        .padding(.bottom, 2)
     }
 
     private var providerStrip: some View {
@@ -140,6 +142,11 @@ struct PaguroWidgetView: View {
                 .frame(width: marketWidth, height: windowHeight)
         }
         .padding(10)
+        .background(
+            Rectangle()
+                .fill(PaguroTheme.lilac)
+                .offset(x: 4, y: 4)
+        )
         .background(PaguroTheme.white)
         .overlay(
             Rectangle()
@@ -149,7 +156,6 @@ struct PaguroWidgetView: View {
         .overlay(alignment: .topTrailing) { cornerDecoration }
         .overlay(alignment: .bottomLeading) { cornerDecoration }
         .overlay(alignment: .bottomTrailing) { cornerDecoration }
-        .shadow(color: PaguroTheme.lilac, radius: 0, x: 4, y: 4)
     }
 
     private func statusPanel(for pet: PaguroPet) -> some View {
@@ -475,7 +481,7 @@ struct PaguroWidgetView: View {
 
             VStack(spacing: 0) {
                 Color.clear
-                    .frame(height: 18)
+                    .frame(height: 14)
 
                 content()
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -492,7 +498,7 @@ struct PaguroWidgetView: View {
                     Rectangle()
                         .stroke(PaguroTheme.outline, lineWidth: 2)
                 )
-                .offset(y: -8)
+                .offset(y: -6)
         }
         .overlay(
             Rectangle()
@@ -592,8 +598,7 @@ struct PaguroWidgetView: View {
     private var cornerDecoration: some View {
         Rectangle()
             .fill(PaguroTheme.rose)
-            .frame(width: 10, height: 10)
-            .offset(x: 2, y: 2)
+            .frame(width: 8, height: 8)
     }
 
     private var background: some View {
