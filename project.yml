@@ -12,6 +12,7 @@ targets:
     deploymentTarget: "14.0"
     sources:
       - path: Sources
+      - path: Resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.azuic.paguro
