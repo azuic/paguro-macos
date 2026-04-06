@@ -21,49 +21,47 @@ struct PaguroPetSpriteView: View {
         let shellBase = shellBaseColor
 
         return [
-            .init(11, 2, 5, 1, PaguroTheme.outline),
-            .init(9, 3, 10, 1, PaguroTheme.outline),
-            .init(8, 4, 12, 1, PaguroTheme.outline),
-            .init(7, 5, 14, 1, PaguroTheme.outline),
-            .init(6, 6, 15, 1, PaguroTheme.outline),
-            .init(6, 7, 16, 1, PaguroTheme.outline),
-            .init(5, 8, 17, 1, PaguroTheme.outline),
-            .init(5, 9, 17, 1, PaguroTheme.outline),
-            .init(5, 10, 16, 1, PaguroTheme.outline),
-            .init(4, 11, 16, 1, PaguroTheme.outline),
-            .init(4, 12, 15, 1, PaguroTheme.outline),
-            .init(4, 13, 14, 1, PaguroTheme.outline),
-            .init(5, 14, 12, 1, PaguroTheme.outline),
-            .init(5, 15, 11, 1, PaguroTheme.outline),
-            .init(6, 16, 9, 1, PaguroTheme.outline),
-            .init(7, 17, 8, 1, PaguroTheme.outline),
-            .init(8, 18, 6, 1, PaguroTheme.outline),
-            .init(10, 19, 3, 1, PaguroTheme.outline),
-            .init(11, 3, 5, 1, shellBase),
-            .init(9, 4, 9, 1, shellBase),
-            .init(8, 5, 11, 1, shellBase),
-            .init(7, 6, 12, 1, shellBase),
-            .init(7, 7, 13, 1, shellBase),
-            .init(6, 8, 14, 1, shellBase),
-            .init(6, 9, 14, 1, shellBase),
-            .init(6, 10, 13, 1, shellBase),
-            .init(5, 11, 13, 1, shellBase),
-            .init(5, 12, 12, 1, shellBase),
-            .init(5, 13, 11, 1, shellBase),
-            .init(6, 14, 9, 1, shellBase),
-            .init(6, 15, 8, 1, shellBase),
-            .init(7, 16, 6, 1, shellBase),
-            .init(8, 17, 5, 1, shellBase),
-            .init(9, 18, 3, 1, shellBase),
+            .init(13, 2, 4, 1, PaguroTheme.outline),
+            .init(11, 3, 8, 1, PaguroTheme.outline),
+            .init(10, 4, 10, 1, PaguroTheme.outline),
+            .init(9, 5, 12, 1, PaguroTheme.outline),
+            .init(8, 6, 13, 1, PaguroTheme.outline),
+            .init(8, 7, 14, 1, PaguroTheme.outline),
+            .init(7, 8, 15, 1, PaguroTheme.outline),
+            .init(7, 9, 15, 1, PaguroTheme.outline),
+            .init(7, 10, 15, 1, PaguroTheme.outline),
+            .init(6, 11, 15, 1, PaguroTheme.outline),
+            .init(6, 12, 14, 1, PaguroTheme.outline),
+            .init(6, 13, 13, 1, PaguroTheme.outline),
+            .init(7, 14, 11, 1, PaguroTheme.outline),
+            .init(7, 15, 10, 1, PaguroTheme.outline),
+            .init(8, 16, 8, 1, PaguroTheme.outline),
+            .init(9, 17, 6, 1, PaguroTheme.outline),
+            .init(11, 18, 3, 1, PaguroTheme.outline),
+            .init(13, 3, 4, 1, shellBase),
+            .init(11, 4, 7, 1, shellBase),
+            .init(10, 5, 9, 1, shellBase),
+            .init(9, 6, 10, 1, shellBase),
+            .init(9, 7, 11, 1, shellBase),
+            .init(8, 8, 12, 1, shellBase),
+            .init(8, 9, 12, 1, shellBase),
+            .init(8, 10, 12, 1, shellBase),
+            .init(7, 11, 12, 1, shellBase),
+            .init(7, 12, 11, 1, shellBase),
+            .init(7, 13, 10, 1, shellBase),
+            .init(8, 14, 8, 1, shellBase),
+            .init(8, 15, 7, 1, shellBase),
+            .init(9, 16, 5, 1, shellBase),
+            .init(10, 17, 3, 1, shellBase),
         ]
     }
 
     private var shellHighlightBlocks: [PixelBlock] {
         [
-            .init(10, 5, 2, 1, PaguroTheme.white.opacity(0.34)),
-            .init(9, 6, 2, 1, PaguroTheme.white.opacity(0.32)),
-            .init(8, 7, 2, 1, PaguroTheme.white.opacity(0.28)),
-            .init(8, 8, 1, 2, PaguroTheme.white.opacity(0.24)),
+            .init(12, 4, 2, 1, PaguroTheme.white.opacity(0.34)),
+            .init(11, 5, 2, 1, PaguroTheme.white.opacity(0.3)),
+            .init(10, 6, 2, 1, PaguroTheme.white.opacity(0.26)),
+            .init(10, 7, 1, 2, PaguroTheme.white.opacity(0.22)),
         ]
     }
 
@@ -73,36 +71,37 @@ struct PaguroPetSpriteView: View {
         return switch pet.shell {
         case .sand:
             [
-                .init(13, 6, 2, 1, accent),
-                .init(14, 7, 3, 1, accent),
-                .init(11, 9, 4, 1, accent),
-                .init(10, 11, 3, 2, accent),
-                .init(13, 14, 2, 1, accent),
+                .init(14, 5, 2, 1, accent),
+                .init(15, 7, 2, 1, accent),
+                .init(13, 9, 4, 1, accent),
+                .init(11, 11, 4, 1, accent),
+                .init(10, 13, 3, 1, accent),
             ]
         case .sunset:
             [
-                .init(9, 6, 7, 1, accent),
-                .init(10, 9, 7, 1, accent),
-                .init(11, 12, 5, 1, accent),
-                .init(12, 15, 3, 1, accent),
+                .init(12, 5, 5, 1, accent),
+                .init(13, 8, 5, 1, accent),
+                .init(11, 11, 6, 1, accent),
+                .init(10, 14, 4, 1, accent),
             ]
         case .lagoon:
             [
-                .init(12, 5, 2, 1, accent),
-                .init(14, 7, 3, 1, accent),
-                .init(9, 10, 5, 1, accent),
-                .init(12, 13, 4, 1, accent),
-                .init(10, 16, 2, 1, accent),
+                .init(14, 5, 2, 1, accent),
+                .init(13, 7, 3, 1, accent),
+                .init(12, 10, 4, 1, accent),
+                .init(10, 13, 4, 1, accent),
+                .init(11, 16, 2, 1, accent),
             ]
         }
     }
 
     private var shellOpeningUnderlayBlocks: [PixelBlock] {
         [
-            .init(6, 12, 1, 4, PaguroTheme.white),
-            .init(7, 13, 1, 3, PaguroTheme.white),
-            .init(8, 14, 1, 2, PaguroTheme.white.opacity(0.9)),
-            .init(8, 12, 1, 3, shellBaseColor.opacity(0.34)),
+            .init(7, 11, 2, 1, PaguroTheme.white),
+            .init(7, 12, 3, 1, PaguroTheme.white),
+            .init(7, 13, 3, 1, PaguroTheme.white.opacity(0.94)),
+            .init(8, 14, 2, 1, PaguroTheme.white.opacity(0.88)),
+            .init(9, 15, 1, 1, shellBaseColor.opacity(0.28)),
         ]
     }
 
@@ -156,9 +155,9 @@ struct PaguroPetSpriteView: View {
 
     private var shellRimBlocks: [PixelBlock] {
         [
-            .init(5, 11, 1, 6, PaguroTheme.outline),
-            .init(6, 12, 1, 5, PaguroTheme.outline),
-            .init(7, 13, 1, 3, PaguroTheme.outline.opacity(0.86)),
+            .init(6, 10, 1, 5, PaguroTheme.outline),
+            .init(7, 11, 1, 4, PaguroTheme.outline),
+            .init(8, 12, 1, 2, PaguroTheme.outline.opacity(0.86)),
         ]
     }
 
