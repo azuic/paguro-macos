@@ -2,9 +2,16 @@ import Foundation
 
 @MainActor
 final class PaguroStore: ObservableObject {
+    static let shared = PaguroStore()
+
     @Published private(set) var pets: [PaguroPet]
     @Published private(set) var selection: PetSelectionState
     @Published private(set) var telemetry: ProviderTelemetryState
+    @Published var desktopPetEnabled: Bool {
+        didSet {
+            save()
+        }
+    }
     @Published var selectedProvider: ProviderKind {
         didSet {
             save()
@@ -36,6 +43,7 @@ final class PaguroStore: ObservableObject {
         selection = initialSnapshot.selection
         selectedProvider = initialSnapshot.selectedProvider
         telemetry = initialSnapshot.telemetry
+        desktopPetEnabled = initialSnapshot.desktopPetEnabled
 
         normalizeState()
         claudeBridgeMonitor.start()
@@ -213,6 +221,10 @@ final class PaguroStore: ObservableObject {
         case .openAI:
             simulateUsagePulse()
         }
+    }
+
+    func toggleDesktopPetVisibility() {
+        desktopPetEnabled.toggle()
     }
 
     func playWithActivePet() {
@@ -397,7 +409,8 @@ final class PaguroStore: ObservableObject {
             selectedProvider: selectedProvider,
             selection: selection,
             pets: pets,
-            telemetry: telemetry
+            telemetry: telemetry,
+            desktopPetEnabled: desktopPetEnabled
         )
 
         guard let data = try? JSONEncoder().encode(snapshot) else {
@@ -495,24 +508,28 @@ private struct PaguroSnapshot: Codable {
     var selection: PetSelectionState
     var pets: [PaguroPet]
     var telemetry: ProviderTelemetryState
+    var desktopPetEnabled: Bool
 
     private enum CodingKeys: String, CodingKey {
         case selectedProvider
         case selection
         case pets
         case telemetry
+        case desktopPetEnabled
     }
 
     init(
         selectedProvider: ProviderKind,
         selection: PetSelectionState,
         pets: [PaguroPet],
-        telemetry: ProviderTelemetryState
+        telemetry: ProviderTelemetryState,
+        desktopPetEnabled: Bool
     ) {
         self.selectedProvider = selectedProvider
         self.selection = selection
         self.pets = pets
         self.telemetry = telemetry
+        self.desktopPetEnabled = desktopPetEnabled
     }
 
     init(from decoder: Decoder) throws {
@@ -526,6 +543,7 @@ private struct PaguroSnapshot: Codable {
             openAIPetID: pets.first(where: { $0.provider == .openAI })?.id
         )
         telemetry = try container.decodeIfPresent(ProviderTelemetryState.self, forKey: .telemetry) ?? ProviderTelemetryState()
+        desktopPetEnabled = try container.decodeIfPresent(Bool.self, forKey: .desktopPetEnabled) ?? true
     }
 
     static let seed = PaguroSnapshot(
@@ -553,6 +571,7 @@ private struct PaguroSnapshot: Codable {
                 pattern: .speckles
             ),
         ],
-        telemetry: ProviderTelemetryState()
+        telemetry: ProviderTelemetryState(),
+        desktopPetEnabled: true
     )
 }

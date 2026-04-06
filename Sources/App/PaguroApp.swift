@@ -2,7 +2,8 @@ import SwiftUI
 
 @main
 struct PaguroApp: App {
-    @StateObject private var store = PaguroStore()
+    @NSApplicationDelegateAdaptor(PaguroAppDelegate.self) private var appDelegate
+    @StateObject private var store = PaguroStore.shared
 
     var body: some Scene {
         MenuBarExtra {
