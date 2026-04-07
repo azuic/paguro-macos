@@ -20,6 +20,85 @@ struct PaguroPetSpriteView: View {
         expression ?? .from(mood: pet.mood)
     }
 
+    private var usesAnimatedOverlays: Bool {
+        pose != .idle
+    }
+
+    private var bodyFillName: String {
+        guard usesAnimatedOverlays else {
+            return "body_fill_\(pose.assetSuffix)"
+        }
+
+        return spriteName(
+            preferred: "body_fill_core_\(pose.assetSuffix)",
+            fallback: "body_fill_\(pose.assetSuffix)",
+            subdirectory: "Sprites/paguro/body"
+        )
+    }
+
+    private var bodyOutlineName: String {
+        guard usesAnimatedOverlays else {
+            return "body_outline_\(pose.assetSuffix)"
+        }
+
+        return spriteName(
+            preferred: "body_outline_core_\(pose.assetSuffix)",
+            fallback: "body_outline_\(pose.assetSuffix)",
+            subdirectory: "Sprites/paguro/body"
+        )
+    }
+
+    private var clawOffset: CGSize {
+        switch pose {
+        case .idle:
+            return .zero
+        case .walkA:
+            return CGSize(width: -1.5, height: -1)
+        case .walkB:
+            return CGSize(width: 1, height: 0.5)
+        }
+    }
+
+    private var clawRotation: Angle {
+        switch pose {
+        case .idle:
+            return .degrees(0)
+        case .walkA:
+            return .degrees(-4)
+        case .walkB:
+            return .degrees(3)
+        }
+    }
+
+    private var headOffset: CGSize {
+        if isBlinking {
+            return CGSize(width: 0, height: 1)
+        }
+
+        switch pose {
+        case .idle:
+            if activeExpression == .sleepy {
+                return CGSize(width: 0, height: 1)
+            }
+            return .zero
+        case .walkA:
+            return CGSize(width: -0.5, height: -1)
+        case .walkB:
+            return CGSize(width: 0.5, height: 0)
+        }
+    }
+
+    private var headRotation: Angle {
+        switch pose {
+        case .idle:
+            return activeExpression == .sleepy ? .degrees(2) : .degrees(0)
+        case .walkA:
+            return .degrees(-2.5)
+        case .walkB:
+            return .degrees(2)
+        }
+    }
+
     var body: some View {
         ZStack {
             Ellipse()
@@ -28,8 +107,17 @@ struct PaguroPetSpriteView: View {
                 .offset(x: 0, y: 33)
 
             SpriteLayerView(subdirectory: "Sprites/paguro/shell", name: pet.shell.assetName)
-            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_fill_\(pose.assetSuffix)", tint: bodyTint)
+            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: bodyFillName, tint: bodyTint)
             SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_belly_\(pose.assetSuffix)")
+
+            if usesAnimatedOverlays {
+                SpriteLayerView(subdirectory: "Sprites/paguro/claws", name: "claws_fill_\(pose.assetSuffix)", tint: bodyTint)
+                    .offset(clawOffset)
+                    .rotationEffect(clawRotation, anchor: UnitPoint(x: 0.38, y: 0.56))
+                SpriteLayerView(subdirectory: "Sprites/paguro/head", name: "head_fill_\(pose.assetSuffix)", tint: bodyTint)
+                    .offset(headOffset)
+                    .rotationEffect(headRotation, anchor: UnitPoint(x: 0.46, y: 0.52))
+            }
 
             if let patternAssetName = pet.pattern.assetName {
                 SpriteLayerView(
@@ -40,12 +128,29 @@ struct PaguroPetSpriteView: View {
                 )
             }
 
-            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_outline_\(pose.assetSuffix)")
-            SpriteLayerView(subdirectory: "Sprites/paguro/face", name: isBlinking ? "eyes_blink" : "eyes_open")
-            SpriteLayerView(subdirectory: "Sprites/paguro/face", name: activeExpression.assetName)
+            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: bodyOutlineName)
+            if usesAnimatedOverlays {
+                SpriteLayerView(subdirectory: "Sprites/paguro/claws", name: "claws_outline_\(pose.assetSuffix)")
+                    .offset(clawOffset)
+                    .rotationEffect(clawRotation, anchor: UnitPoint(x: 0.38, y: 0.56))
+            }
+
+            ZStack {
+                if usesAnimatedOverlays {
+                    SpriteLayerView(subdirectory: "Sprites/paguro/head", name: "head_outline_\(pose.assetSuffix)")
+                }
+                SpriteLayerView(subdirectory: "Sprites/paguro/face", name: isBlinking ? "eyes_blink" : "eyes_open")
+                SpriteLayerView(subdirectory: "Sprites/paguro/face", name: activeExpression.assetName)
+            }
+            .offset(usesAnimatedOverlays ? headOffset : .zero)
+            .rotationEffect(usesAnimatedOverlays ? headRotation : .degrees(0), anchor: UnitPoint(x: 0.46, y: 0.52))
         }
         .frame(width: 96, height: 96)
         .scaleEffect(x: direction == .left ? -1 : 1, y: 1, anchor: .center)
+    }
+
+    private func spriteName(preferred: String, fallback: String, subdirectory: String) -> String {
+        PaguroSpriteCatalog.hasImage(name: preferred, subdirectory: subdirectory) ? preferred : fallback
     }
 }
 
@@ -125,6 +230,10 @@ private enum PaguroSpriteCatalog {
 
         cache[cacheKey] = image
         return image
+    }
+
+    static func hasImage(name: String, subdirectory: String) -> Bool {
+        image(name: name, subdirectory: subdirectory) != nil
     }
 }
 

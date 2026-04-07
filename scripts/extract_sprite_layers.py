@@ -83,11 +83,16 @@ def main() -> None:
         body_fill = load(f"body/body_fill_{pose}.png")
         body_outline = load(f"body/body_outline_{pose}.png")
         claw_mask = build_claw_mask(pose)
+        combined_mask = ImageChops.lighter(claw_mask, static_head_mask)
+        full_mask = Image.new("L", (CANVAS, CANVAS), 255)
+        body_core_mask = ImageChops.subtract(full_mask, combined_mask)
 
         save(masked(body_fill, claw_mask), f"claws/claws_fill_{pose}.png")
         save(masked(body_outline, claw_mask), f"claws/claws_outline_{pose}.png")
         save(masked(body_fill, static_head_mask), f"head/head_fill_{pose}.png")
         save(masked(body_outline, static_head_mask), f"head/head_outline_{pose}.png")
+        save(masked(body_fill, body_core_mask), f"body/body_fill_core_{pose}.png")
+        save(masked(body_outline, body_core_mask), f"body/body_outline_core_{pose}.png")
 
 
 if __name__ == "__main__":
