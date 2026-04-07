@@ -9,11 +9,19 @@ struct PaguroPetSpriteView: View {
     var isBlinking = false
 
     private var bodyTint: Color {
-        Color(hue: pet.bodyHue / 360, saturation: 0.72, brightness: 0.96)
+        Color(hue: pet.bodyHue / 360, saturation: 0.72, brightness: 0.7)
+    }
+
+    private var headTint: Color {
+        Color(hue: pet.bodyHue / 360, saturation: 0.8, brightness: 0.86)
+    }
+
+    private var clawTint: Color {
+        Color(hue: pet.bodyHue / 360, saturation: 0.84, brightness: 0.8)
     }
 
     private var patternTint: Color {
-        Color(hue: pet.bodyHue / 360, saturation: 0.78, brightness: 0.68)
+        Color(hue: pet.bodyHue / 360, saturation: 0.78, brightness: 0.54)
     }
 
     private var activeExpression: PaguroSpriteExpression {
@@ -24,23 +32,25 @@ struct PaguroPetSpriteView: View {
         ZStack {
             Ellipse()
                 .fill(PaguroTheme.outline.opacity(0.14))
-                .frame(width: 48, height: 10)
-                .offset(x: 0, y: 33)
+                .frame(width: 50, height: 10)
+                .offset(x: 1, y: 34)
 
             SpriteLayerView(subdirectory: "Sprites/paguro/shell", name: pet.shell.assetName)
-            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_fill_\(pose.assetSuffix)", tint: bodyTint)
-            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_belly_\(pose.assetSuffix)")
+                .scaleEffect(1.1)
+                .offset(x: 2, y: -3)
+            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_\(pose.assetSuffix)", tint: bodyTint)
+            SpriteLayerView(subdirectory: "Sprites/paguro/claws", name: "claws_\(pose.assetSuffix)", tint: clawTint)
+            SpriteLayerView(subdirectory: "Sprites/paguro/head", name: "head_\(pose.assetSuffix)", tint: headTint)
 
             if let patternAssetName = pet.pattern.assetName {
                 SpriteLayerView(
                     subdirectory: "Sprites/paguro/pattern",
                     name: patternAssetName,
                     tint: patternTint,
-                    opacity: 0.82
+                    opacity: 0.7
                 )
             }
 
-            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_outline_\(pose.assetSuffix)")
             SpriteLayerView(subdirectory: "Sprites/paguro/face", name: isBlinking ? "eyes_blink" : "eyes_open")
             SpriteLayerView(subdirectory: "Sprites/paguro/face", name: activeExpression.assetName)
         }
