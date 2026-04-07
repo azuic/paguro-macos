@@ -94,181 +94,128 @@ def draw_shell(name: str, colors: dict) -> None:
     save(image, f"shell/{name}.png")
 
 
-def claw_shapes(side: str, pose: str):
+def claw_points(side: str, pose: str):
     left = {
-        "idle": {
-            "arm": [(13, 27), (10, 27), (8, 30), (9, 34), (12, 35), (15, 33), (16, 30)],
-            "claw": [(7, 25), (3, 27), (2, 32), (5, 36), (10, 37), (13, 34), (12, 29)],
-            "pinch": [(7, 25), (4, 21), (4, 18), (7, 17), (10, 20), (10, 24)],
-        },
-        "walk_a": {
-            "arm": [(13, 26), (10, 26), (8, 29), (9, 33), (12, 34), (15, 32), (16, 29)],
-            "claw": [(6, 24), (2, 26), (1, 31), (4, 35), (9, 36), (12, 33), (11, 28)],
-            "pinch": [(6, 24), (3, 20), (3, 17), (6, 16), (9, 19), (9, 23)],
-        },
-        "walk_b": {
-            "arm": [(14, 28), (11, 28), (9, 31), (10, 35), (13, 36), (16, 34), (17, 31)],
-            "claw": [(8, 26), (4, 28), (3, 33), (6, 37), (11, 38), (14, 35), (13, 30)],
-            "pinch": [(8, 26), (5, 22), (5, 19), (8, 18), (11, 21), (11, 25)],
-        },
+        "idle": [(8, 23), (4, 25), (3, 30), (5, 34), (9, 35), (12, 32), (12, 28)],
+        "walk_a": [(7, 22), (3, 24), (2, 29), (4, 33), (8, 34), (11, 31), (12, 27)],
+        "walk_b": [(9, 24), (5, 26), (4, 31), (6, 35), (10, 36), (13, 33), (13, 29)],
     }
     right = {
-        "idle": {
-            "arm": [(24, 29), (26, 27), (28, 27), (29, 30), (28, 33), (25, 33)],
-            "claw": [(28, 27), (31, 26), (34, 27), (36, 30), (35, 33), (32, 34), (29, 32)],
-            "pinch": [(31, 26), (34, 23), (35, 20), (34, 17), (31, 17), (29, 20), (29, 24)],
-        },
-        "walk_a": {
-            "arm": [(25, 28), (27, 26), (29, 26), (30, 29), (29, 32), (26, 32)],
-            "claw": [(29, 26), (32, 25), (35, 26), (37, 29), (36, 32), (33, 33), (30, 31)],
-            "pinch": [(32, 25), (35, 22), (36, 19), (35, 16), (32, 16), (30, 19), (30, 23)],
-        },
-        "walk_b": {
-            "arm": [(23, 30), (25, 28), (27, 28), (28, 31), (27, 34), (24, 34)],
-            "claw": [(27, 28), (30, 27), (33, 28), (35, 31), (34, 34), (31, 35), (28, 33)],
-            "pinch": [(30, 27), (33, 24), (34, 21), (33, 18), (30, 18), (28, 21), (28, 25)],
-        },
+        "idle": [(31, 25), (34, 22), (39, 23), (42, 27), (41, 31), (37, 33), (33, 31)],
+        "walk_a": [(32, 26), (35, 23), (40, 24), (43, 28), (42, 32), (38, 34), (34, 32)],
+        "walk_b": [(30, 24), (33, 21), (38, 22), (41, 26), (40, 30), (36, 32), (32, 30)],
     }
     return left[pose] if side == "left" else right[pose]
 
 
-def leg_points(pose: str):
-    return {
-        "idle": [
-            [(17, 34), (14, 39), (13, 43)],
-            [(21, 35), (20, 41), (20, 44)],
-            [(25, 35), (26, 40), (28, 43)],
-            [(28, 34), (31, 39), (33, 42)],
-        ],
-        "walk_a": [
-            [(17, 34), (14, 38), (11, 40)],
-            [(21, 35), (20, 40), (21, 44)],
-            [(25, 35), (27, 39), (30, 41)],
-            [(28, 34), (31, 40), (32, 44)],
-        ],
-        "walk_b": [
-            [(17, 35), (15, 40), (15, 44)],
-            [(21, 35), (18, 39), (16, 42)],
-            [(25, 35), (27, 39), (28, 42)],
-            [(28, 35), (31, 38), (34, 40)],
-        ],
-    }[pose]
-
-
-def head_shapes(pose: str):
-    head = {
-        "idle": [(12, 20), (16, 18), (20, 18), (23, 20), (24, 24), (22, 27), (17, 28), (13, 26), (11, 23)],
-        "walk_a": [(12, 19), (16, 17), (20, 17), (23, 19), (24, 23), (22, 26), (17, 27), (13, 25), (11, 22)],
-        "walk_b": [(13, 21), (17, 19), (21, 19), (24, 21), (25, 25), (23, 28), (18, 29), (14, 27), (12, 24)],
+def leg_points(side: str, index: int, pose: str):
+    left_legs = {
+        "idle": [[(15, 35), (11, 39), (9, 42)], [(18, 36), (15, 41), (13, 44)], [(21, 36), (19, 41), (18, 44)]],
+        "walk_a": [[(15, 35), (11, 38), (8, 40)], [(18, 36), (16, 41), (15, 44)], [(21, 36), (20, 41), (21, 44)]],
+        "walk_b": [[(15, 35), (12, 40), (11, 44)], [(18, 36), (14, 39), (11, 41)], [(21, 36), (18, 40), (16, 43)]],
     }
-    muzzle = {
-        "idle": [(14, 23), (17, 22), (20, 22), (22, 24), (21, 26), (17, 27), (14, 26)],
-        "walk_a": [(14, 22), (17, 21), (20, 21), (22, 23), (21, 25), (17, 26), (14, 25)],
-        "walk_b": [(15, 24), (18, 23), (21, 23), (23, 25), (22, 27), (18, 28), (15, 27)],
+    right_legs = {
+        "idle": [[(31, 35), (35, 39), (37, 42)], [(28, 36), (31, 41), (33, 44)], [(25, 36), (27, 41), (28, 44)]],
+        "walk_a": [[(31, 35), (34, 40), (35, 44)], [(28, 36), (32, 39), (35, 41)], [(25, 36), (28, 40), (30, 43)]],
+        "walk_b": [[(31, 35), (35, 38), (38, 40)], [(28, 36), (30, 41), (31, 44)], [(25, 36), (26, 41), (25, 44)]],
     }
-    antennae = {
-        "idle": [[(15, 19), (12, 15), (9, 11), (7, 7)], [(17, 19), (17, 14), (16, 10), (15, 6)]],
-        "walk_a": [[(15, 18), (12, 14), (9, 10), (7, 6)], [(17, 18), (17, 13), (16, 9), (15, 5)]],
-        "walk_b": [[(16, 20), (13, 16), (10, 12), (8, 8)], [(18, 20), (18, 15), (17, 11), (16, 7)]],
-    }
-    return head[pose], muzzle[pose], antennae[pose]
+    return left_legs[pose][index] if side == "left" else right_legs[pose][index]
 
 
 def draw_body_frame(pose: str) -> None:
-    body = new_canvas()
-    claws = new_canvas()
-    head = new_canvas()
+    fill = new_canvas()
+    belly = new_canvas()
+    outline = new_canvas()
 
-    body_draw = ImageDraw.Draw(body)
-    claw_draw = ImageDraw.Draw(claws)
-    head_draw = ImageDraw.Draw(head)
+    fill_draw = ImageDraw.Draw(fill)
+    belly_draw = ImageDraw.Draw(belly)
+    outline_draw = ImageDraw.Draw(outline)
 
-    shell_bridge = [(20, 19), (24, 18), (28, 19), (29, 22), (27, 25), (22, 25), (19, 23)]
-    torso = [(16, 26), (19, 24), (23, 23), (26, 24), (28, 27), (28, 31), (26, 35), (22, 36), (18, 35), (15, 32), (14, 29)]
-    abdomen = [(18, 29), (21, 28), (25, 29), (26, 32), (24, 35), (21, 35), (18, 34), (16, 31)]
+    shell_bridge = [(24, 17), (28, 16), (31, 18), (31, 21), (28, 22), (24, 21), (22, 19)]
+    torso = [(12, 24), (17, 21), (24, 20), (31, 21), (35, 25), (36, 31), (34, 35), (28, 38), (21, 39), (15, 38), (11, 34), (10, 28)]
+    shade = [(14, 24), (20, 22), (28, 22), (33, 25), (34, 29), (29, 31), (20, 31), (14, 29)]
 
-    body_draw.polygon(shell_bridge, fill=BODY_SHADE)
-    draw_closed_path(body_draw, shell_bridge, OUTLINE)
-    body_draw.polygon(torso, fill=BODY_LIGHT)
-    body_draw.polygon(abdomen, fill=BODY_SHADE)
-    draw_closed_path(body_draw, torso, OUTLINE)
-    body_draw.arc((17, 27, 26, 35), start=195, end=340, fill=OUTLINE)
-    body_draw.line([(18, 28), (24, 28)], fill=BODY_DEEP, width=1)
-    body_draw.line([(18, 31), (24, 31)], fill=BODY_DEEP, width=1)
-    body_draw.rounded_rectangle((18, 30, 24, 35), radius=2, fill=BELLY)
-    body_draw.rounded_rectangle((19, 31, 23, 35), radius=2, fill=BELLY_SHADE)
+    fill_draw.polygon(shell_bridge, fill=BODY_SHADE)
+    outline_draw.polygon(shell_bridge, fill=OUTLINE)
+    draw_closed_path(outline_draw, shell_bridge, OUTLINE)
 
-    for points in leg_points(pose):
-        body_draw.line(points, fill=BODY_LIGHT, width=2)
-        body_draw.line(points, fill=OUTLINE, width=1)
+    fill_draw.polygon(torso, fill=BODY_LIGHT)
+    fill_draw.polygon(shade, fill=BODY_SHADE)
+    fill_draw.rectangle((18, 24, 30, 27), fill=BODY_DEEP)
+    draw_closed_path(outline_draw, torso, OUTLINE)
+
+    left_claw = claw_points("left", pose)
+    right_claw = claw_points("right", pose)
+    fill_draw.polygon(left_claw, fill=BODY_LIGHT)
+    fill_draw.polygon(right_claw, fill=BODY_LIGHT)
+    fill_draw.polygon([left_claw[0], left_claw[1], left_claw[2], left_claw[3], left_claw[4]], fill=BODY_SHADE)
+    fill_draw.polygon([right_claw[0], right_claw[1], right_claw[2], right_claw[3], right_claw[4]], fill=BODY_SHADE)
+    draw_closed_path(outline_draw, left_claw, OUTLINE)
+    draw_closed_path(outline_draw, right_claw, OUTLINE)
 
     for side in ("left", "right"):
-        shapes = claw_shapes(side, pose)
-        claw_draw.polygon(shapes["arm"], fill=BODY_LIGHT)
-        claw_draw.polygon(shapes["claw"], fill=BODY_LIGHT)
-        claw_draw.polygon(shapes["pinch"], fill=BODY_SHADE)
-        draw_closed_path(claw_draw, shapes["arm"], OUTLINE)
-        draw_closed_path(claw_draw, shapes["claw"], OUTLINE)
-        draw_closed_path(claw_draw, shapes["pinch"], OUTLINE)
-        claw_draw.line([shapes["claw"][1], shapes["claw"][4]], fill=BODY_DEEP, width=1)
+        for index in range(3):
+            points = leg_points(side, index, pose)
+            fill_draw.line(points, fill=BODY_LIGHT, width=2)
+            outline_draw.line(points, fill=OUTLINE, width=1)
 
-    head_shape, muzzle, antennae = head_shapes(pose)
-    head_draw.polygon(head_shape, fill=BODY_LIGHT)
-    head_draw.polygon(muzzle, fill=BODY_SHADE)
-    draw_closed_path(head_draw, head_shape, OUTLINE)
-    head_draw.arc((14, 22, 22, 28), start=15, end=165, fill=BODY_DEEP)
-    for antenna in antennae:
-        head_draw.line(antenna, fill=OUTLINE, width=1)
+    belly_draw.rounded_rectangle((16, 28, 30, 38), radius=5, fill=BELLY)
+    belly_draw.rounded_rectangle((18, 30, 28, 37), radius=5, fill=BELLY_SHADE)
+    belly_draw.ellipse((19, 30, 24, 34), fill=(255, 255, 255, 60))
 
-    save(body, f"body/body_{pose}.png")
-    save(claws, f"claws/claws_{pose}.png")
-    save(head, f"head/head_{pose}.png")
+    outline_draw.arc((15, 27, 31, 39), start=200, end=340, fill=OUTLINE)
+    outline_draw.arc((12, 23, 18, 31), start=225, end=20, fill=OUTLINE)
+    outline_draw.arc((29, 23, 36, 31), start=160, end=320, fill=OUTLINE)
+
+    save(fill, f"body/body_fill_{pose}.png")
+    save(belly, f"body/body_belly_{pose}.png")
+    save(outline, f"body/body_outline_{pose}.png")
 
 
 def draw_pattern_assets() -> None:
     speckles = new_canvas()
     speckle_draw = ImageDraw.Draw(speckles)
-    for x, y in [(12, 28), (18, 27), (23, 26), (28, 28), (16, 32), (24, 33), (31, 30)]:
+    for x, y in [(17, 27), (24, 26), (30, 28), (20, 31), (27, 33), (15, 33)]:
         speckle_draw.rectangle((x, y, x + 1, y + 1), fill=(255, 255, 255, 255))
     save(speckles, "pattern/pattern_speckles.png")
 
     stripes = new_canvas()
     stripe_draw = ImageDraw.Draw(stripes)
-    stripe_draw.rectangle((14, 27, 15, 35), fill=(255, 255, 255, 255))
-    stripe_draw.rectangle((20, 24, 21, 36), fill=(255, 255, 255, 255))
-    stripe_draw.rectangle((26, 25, 27, 36), fill=(255, 255, 255, 255))
+    stripe_draw.rectangle((18, 25, 19, 35), fill=(255, 255, 255, 255))
+    stripe_draw.rectangle((23, 24, 24, 36), fill=(255, 255, 255, 255))
+    stripe_draw.rectangle((28, 25, 29, 35), fill=(255, 255, 255, 255))
     save(stripes, "pattern/pattern_stripes.png")
 
 
 def draw_face_assets() -> None:
     eyes_open = new_canvas()
     draw = ImageDraw.Draw(eyes_open)
-    draw.ellipse((15, 22, 17, 25), fill=EYE)
-    draw.ellipse((20, 22, 22, 25), fill=EYE)
-    draw.point((16, 23), fill=SPARKLE)
-    draw.point((21, 23), fill=SPARKLE)
+    draw.ellipse((18, 27, 21, 31), fill=EYE)
+    draw.ellipse((27, 27, 30, 31), fill=EYE)
+    draw.point((19, 28), fill=SPARKLE)
+    draw.point((28, 28), fill=SPARKLE)
     save(eyes_open, "face/eyes_open.png")
 
     eyes_blink = new_canvas()
     draw = ImageDraw.Draw(eyes_blink)
-    draw.line([(15, 24), (17, 24)], fill=OUTLINE, width=1)
-    draw.line([(20, 24), (22, 24)], fill=OUTLINE, width=1)
+    draw.line([(18, 29), (21, 29)], fill=OUTLINE, width=1)
+    draw.line([(27, 29), (30, 29)], fill=OUTLINE, width=1)
     save(eyes_blink, "face/eyes_blink.png")
 
     mouth_neutral = new_canvas()
     draw = ImageDraw.Draw(mouth_neutral)
-    draw.line([(17, 27), (19, 27)], fill=OUTLINE, width=1)
+    draw.line([(23, 33), (26, 33)], fill=OUTLINE, width=1)
     save(mouth_neutral, "face/mouth_neutral.png")
 
     mouth_smile = new_canvas()
     draw = ImageDraw.Draw(mouth_smile)
-    draw.arc((16, 26, 20, 29), start=15, end=165, fill=OUTLINE)
+    draw.arc((22, 31, 27, 35), start=15, end=165, fill=OUTLINE)
     save(mouth_smile, "face/mouth_smile.png")
 
     mouth_sleepy = new_canvas()
     draw = ImageDraw.Draw(mouth_sleepy)
-    draw.line([(16, 27), (20, 27)], fill=OUTLINE, width=1)
-    draw.point((18, 28), fill=OUTLINE)
+    draw.line([(22, 33), (27, 33)], fill=OUTLINE, width=1)
+    draw.point((24, 34), fill=OUTLINE)
     save(mouth_sleepy, "face/mouth_sleepy.png")
 
 

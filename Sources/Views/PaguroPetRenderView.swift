@@ -9,15 +9,7 @@ struct PaguroPetSpriteView: View {
     var isBlinking = false
 
     private var bodyTint: Color {
-        Color(hue: pet.bodyHue / 360, saturation: 0.72, brightness: 0.95)
-    }
-
-    private var headTint: Color {
-        Color(hue: pet.bodyHue / 360, saturation: 0.74, brightness: 0.92)
-    }
-
-    private var clawTint: Color {
-        Color(hue: pet.bodyHue / 360, saturation: 0.84, brightness: 0.84)
+        Color(hue: pet.bodyHue / 360, saturation: 0.72, brightness: 0.96)
     }
 
     private var patternTint: Color {
@@ -36,11 +28,8 @@ struct PaguroPetSpriteView: View {
                 .offset(x: 0, y: 33)
 
             SpriteLayerView(subdirectory: "Sprites/paguro/shell", name: pet.shell.assetName)
-                .scaleEffect(1.08)
-                .offset(x: 4, y: -2)
-            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_\(pose.assetSuffix)", tint: bodyTint)
-            SpriteLayerView(subdirectory: "Sprites/paguro/claws", name: "claws_\(pose.assetSuffix)", tint: clawTint)
-            SpriteLayerView(subdirectory: "Sprites/paguro/head", name: "head_\(pose.assetSuffix)", tint: headTint)
+            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_fill_\(pose.assetSuffix)", tint: bodyTint)
+            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_belly_\(pose.assetSuffix)")
 
             if let patternAssetName = pet.pattern.assetName {
                 SpriteLayerView(
@@ -51,6 +40,7 @@ struct PaguroPetSpriteView: View {
                 )
             }
 
+            SpriteLayerView(subdirectory: "Sprites/paguro/body", name: "body_outline_\(pose.assetSuffix)")
             SpriteLayerView(subdirectory: "Sprites/paguro/face", name: isBlinking ? "eyes_blink" : "eyes_open")
             SpriteLayerView(subdirectory: "Sprites/paguro/face", name: activeExpression.assetName)
         }
