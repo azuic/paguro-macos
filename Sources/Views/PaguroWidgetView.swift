@@ -161,6 +161,15 @@ struct PaguroWidgetView: View {
                         store.playWithActivePet()
                     }
                 }
+
+                actionButton(
+                    title: store.desktopPetEnabled ? "Hide Desktop Paguro" : "Show Desktop Paguro",
+                    subtitle: store.desktopPetEnabled ? "Remove the desktop overlay" : "Bring the desktop pet back",
+                    fill: PaguroTheme.cardMuted,
+                    foreground: PaguroTheme.textPrimary
+                ) {
+                    store.toggleDesktopPetVisibility()
+                }
             }
         }
     }
