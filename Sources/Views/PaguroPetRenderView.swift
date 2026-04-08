@@ -20,8 +20,16 @@ struct PaguroPetSpriteView: View {
         expression ?? .from(mood: pet.mood)
     }
 
+    private var showsSleepyDroop: Bool {
+        pose == .idle && activeExpression == .sleepy
+    }
+
+    private var showsChargedPump: Bool {
+        pet.lastUsagePulseAt != nil
+    }
+
     private var usesAnimatedOverlays: Bool {
-        pose != .idle
+        pose != .idle || showsSleepyDroop || showsChargedPump
     }
 
     private var bodyFillName: String {
@@ -49,6 +57,10 @@ struct PaguroPetSpriteView: View {
     }
 
     private var clawOffset: CGSize {
+        if showsChargedPump {
+            return CGSize(width: 0.5, height: -2.5)
+        }
+
         switch pose {
         case .idle:
             return .zero
@@ -60,6 +72,10 @@ struct PaguroPetSpriteView: View {
     }
 
     private var clawRotation: Angle {
+        if showsChargedPump {
+            return .degrees(-9)
+        }
+
         switch pose {
         case .idle:
             return .degrees(0)
@@ -71,15 +87,16 @@ struct PaguroPetSpriteView: View {
     }
 
     private var headOffset: CGSize {
+        if showsSleepyDroop {
+            return CGSize(width: -0.5, height: isBlinking ? 3 : 2.5)
+        }
+
         if isBlinking {
             return CGSize(width: 0, height: 1)
         }
 
         switch pose {
         case .idle:
-            if activeExpression == .sleepy {
-                return CGSize(width: 0, height: 1)
-            }
             return .zero
         case .walkA:
             return CGSize(width: -0.5, height: -1)
@@ -89,9 +106,13 @@ struct PaguroPetSpriteView: View {
     }
 
     private var headRotation: Angle {
+        if showsSleepyDroop {
+            return .degrees(7)
+        }
+
         switch pose {
         case .idle:
-            return activeExpression == .sleepy ? .degrees(2) : .degrees(0)
+            return .degrees(0)
         case .walkA:
             return .degrees(-2.5)
         case .walkB:
